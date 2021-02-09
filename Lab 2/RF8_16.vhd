@@ -35,7 +35,13 @@ BEGIN
             ELSIF (wr_enable = â€˜1') THEN
                 CASE wr_index(2 DOWNTO 0) IS
                     WHEN "000" => reg_file(0) <= wr_data;
-                        --fill this part
+                    WHEN "001" => reg_file(1) <= wr_data;
+                    WHEN "010" => reg_file(2) <= wr_data;
+                    WHEN "011" => reg_file(3) <= wr_data;
+                    WHEN "101" => reg_file(4) <= wr_data;
+                    WHEN "110" => reg_file(5) <= wr_data;
+                    WHEN "111" => reg_file(6) <= wr_data;
+                    WHEN "111" => reg_file(7) <= wr_data;
                     WHEN OTHERS => NULL;
                 END CASE;
             END IF;
@@ -54,6 +60,13 @@ BEGIN
         reg_file(7);
 
     rd_data2 <=
-        --fill this part
+        reg_file(0) WHEN(rd_index2 = "000") ELSE
+        reg_file(1) WHEN(rd_index2 = "001") ELSE
+        reg_file(2) WHEN(rd_index2 = "010") ELSE
+        reg_file(3) WHEN(rd_index2 = "011") ELSE
+        reg_file(4) WHEN(rd_index2 = "100") ELSE
+        reg_file(5) WHEN(rd_index2 = "101") ELSE
+        reg_file(6) WHEN(rd_index2 = "110") ELSE
+        reg_file(7);
 
     END behavioural;
