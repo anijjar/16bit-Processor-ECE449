@@ -20,9 +20,9 @@ ARCHITECTURE behavioural OF test_alu IS
 BEGIN
     u0 : register_file PORT MAP(rst, clk, rd_index1, rd_index2, rd_data1, rd_data2, wr_index, wr_data, wr_enable);
     PROCESS BEGIN
-        clk <= â€˜0';
+        clk <= '0';
         WAIT FOR 10 us;
-        clk <= â€˜1';
+        clk <= '1';
         WAIT FOR 10 us;
     END PROCESS;
     PROCESS BEGIN
@@ -37,7 +37,7 @@ BEGIN
         WAIT UNTIL (clk = '1' AND clk'event);
         rst <= '0';
         WAIT UNTIL (clk = '1' AND clk'event);
-        wr_enable <= â€˜1';
+        wr_enable <= '1';
         wr_data <= X"200a";
         WAIT UNTIL (clk = '1' AND clk'event);
         wr_index <= "001";

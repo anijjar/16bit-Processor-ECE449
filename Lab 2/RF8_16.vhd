@@ -27,12 +27,12 @@ BEGIN
     --write operation 
     PROCESS (clk)
     BEGIN
-        IF (clk = '0' AND clk'event) THEN
+        IF (falling_edge(clk)) THEN
             IF (rst = '1') THEN
                 FOR i IN 0 TO 7 LOOP
                     reg_file(i) <= (OTHERS => '0');
                 END LOOP;
-            ELSIF (wr_enable = â€˜1') THEN
+            ELSIF (wr_enable = '1') THEN
                 CASE wr_index(2 DOWNTO 0) IS
                     WHEN "000" => reg_file(0) <= wr_data;
                     WHEN "001" => reg_file(1) <= wr_data;
