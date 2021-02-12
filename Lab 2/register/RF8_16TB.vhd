@@ -3,9 +3,9 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
 USE work.ALL;
 
-ENTITY test_alu IS END test_alu;
+ENTITY test_rf IS END test_rf;
 
-ARCHITECTURE behavioural OF test_alu IS
+ARCHITECTURE behavioural OF test_rf IS
     COMPONENT register_file PORT (rst : IN STD_LOGIC;
         clk : IN STD_LOGIC;
         rd_index1, rd_index2 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -33,7 +33,6 @@ BEGIN
         wr_index <= "000";
         wr_data <= X"0000";
         WAIT UNTIL (clk = '0' AND clk'event);
-        WAIT UNTIL (clk = '1' AND clk'event);
         WAIT UNTIL (clk = '1' AND clk'event);
         rst <= '0';
         WAIT UNTIL (clk = '1' AND clk'event);

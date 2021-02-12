@@ -27,7 +27,7 @@ BEGIN
     --write operation 
     PROCESS (clk)
     BEGIN
-        IF (falling_edge(clk)) THEN
+        IF (clk = '0' AND clk'event) THEN
             IF (rst = '1') THEN
                 FOR i IN 0 TO 7 LOOP
                     reg_file(i) <= (OTHERS => '0');
@@ -38,9 +38,9 @@ BEGIN
                     WHEN "001" => reg_file(1) <= wr_data;
                     WHEN "010" => reg_file(2) <= wr_data;
                     WHEN "011" => reg_file(3) <= wr_data;
-                    WHEN "101" => reg_file(4) <= wr_data;
-                    WHEN "110" => reg_file(5) <= wr_data;
-                    WHEN "111" => reg_file(6) <= wr_data;
+                    WHEN "100" => reg_file(4) <= wr_data;
+                    WHEN "101" => reg_file(5) <= wr_data;
+                    WHEN "110" => reg_file(6) <= wr_data;
                     WHEN "111" => reg_file(7) <= wr_data;
                     WHEN OTHERS => NULL;
                 END CASE;
