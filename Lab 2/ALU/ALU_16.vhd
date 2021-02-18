@@ -1,7 +1,8 @@
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.ALL;
+use IEEE.std_logic_signed.all;
 
 ENTITY ALU_16 IS
     PORT(
@@ -22,10 +23,10 @@ ENTITY ALU_16 IS
 END ALU_16;
 
 ARCHITECTURE behavioural OF ALU_16 IS
-    SIGNAL ra : std_logic_vector(2 DOWNTO 0);
-    SIGNAL rb : std_logic_vector(2 DOWNTO 0);
-    SIGNAL rc : std_logic_vector(2 DOWNTO 0);
-    SIGNAL cl : std_logic_vector(3 DOWNTO 0);
+    SIGNAL ra : std_logic_vector(15 DOWNTO 0);
+    SIGNAL rb : std_logic_vector(15 DOWNTO 0);
+    SIGNAL rc : std_logic_vector(15 DOWNTO 0);
+    SIGNAL cl : INTEGER;
 BEGIN 
 PROCESS(rst, alu_mode, in1, in2)
 BEGIN
@@ -53,21 +54,22 @@ BEGIN
                 result <= in1 NAND in2;
             WHEN "101" => -- SHL
                 ra <= in1; -- ra
-                cl <= in2(3 DOWNTO 0); -- this is some constant 
-                result <= shift_left(in1, cl) WHEN cl > B"0000";
+                cl <= TO_INTEGER(UNSIGNED(in2)); -- this is some constant 
+--                result <= ra SLL cl WHEN cl > 0;
             WHEN "110" => -- SHR
-                ra <= in1 -- ra
-                cl <= in2(3 DOWNTO 0) -- this is some constant 
-                result <= shift_right(in1, cl) WHEN cl > B"0000";
+                ra <= in1; -- ra
+                cl <= TO_INTEGER(UNSIGNED(in2)); -- this is some constant 
+--                result <= ra SRL cl WHEN cl > 0;
             WHEN "111" => -- TEST
-                IF (in1 = X"0000") THEN -- zero value
+                ra <= in1;
+                IF (TO_INTEGER(SIGNED(ra)) = 0) THEN
                     z_flag <= '1';
-                    n_flag <= '0';
-                ELSIF (in1(to_integer(unsigned(15))) = '0') THEN
-                    z_flag <= '0';
-                    n_flag <= '1';
                 ELSE
                     z_flag <= '0';
+                END IF;
+                IF (TO_INTEGER(SIGNED(ra)) < 0) THEN
+                    n_flag <= '1';
+                ELSE
                     n_flag <= '0';
                 END IF;
             WHEN OTHERS => NULL;
