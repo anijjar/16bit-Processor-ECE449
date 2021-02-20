@@ -3,15 +3,15 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
 
-ENTITY MUX_ARRAY IS
+ENTITY MUX_ARRAY_16 IS
    PORT (
       data_in : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
       s : IN STD_LOGIC;
       data_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
    );
-END MUX_ARRAY;
+END MUX_ARRAY_16;
 
-ARCHITECTURE behavioural OF MUX_ARRAY IS
+ARCHITECTURE behavioural OF MUX_ARRAY_16 IS
    COMPONENT MUX2_1 IS
       PORT (
       SEL : IN STD_LOGIC;
