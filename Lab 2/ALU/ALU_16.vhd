@@ -25,11 +25,11 @@ END ALU_16;
 ARCHITECTURE behavioural OF ALU_16 IS
 
    RBS_16 : ENTITY work.RBS_16 PORT MAP(RBS_16_D_IN, RBS_16_SHIFT, RBS_16_D_OUT);
-   SIGNAL ra : STD_LOGIC_VECTOR(15 DOWNTO 0);
-   SIGNAL rb : STD_LOGIC_VECTOR(15 DOWNTO 0);
-   SIGNAL rc : STD_LOGIC_VECTOR(15 DOWNTO 0);
-   SIGNAL cl : INTEGER;
-   
+   SIGNAL RBS_16_D_IN, RBS_16_D_OUT : STD_LOGIC_VECTOR (15 DOWNTO 0);
+   SIGNAL RBS_16_SHIFT : STD_LOGIC_VECTOR (3 DOWNTO 0);
+
+   SIGNAL cl : STD_LOGIC_VECTOR(3 DOWNTO 0);
+
 BEGIN
    PROCESS (rst, alu_mode, in1, in2)
    BEGIN
@@ -56,13 +56,13 @@ BEGIN
             WHEN "100" => -- NAND
                result <= in1 NAND in2;
             WHEN "101" => -- SHL
-               ra <= in1; -- ra
-               cl <= TO_INTEGER(UNSIGNED(in2)); -- this is some constant 
-               --                result <= ra SLL cl WHEN cl > 0;
+
             WHEN "110" => -- SHR
-               ra <= in1; -- ra
-               cl <= TO_INTEGER(UNSIGNED(in2)); -- this is some constant 
-               --                
+               if (IN2 > X"0") and (IN2 <= X"F") then --ensure input is less than 4 bit but greater than 0
+                  RBS_16_D_IN <= IN1;
+                  RBS_16_SHIFT <= cl;
+                  result <= RBS_16_D_OUT;
+               end if
             WHEN "111" => -- TEST
 
             WHEN OTHERS => NULL;
