@@ -4,9 +4,6 @@
    -- Rotate right
    -- Shift left logical
    -- Shift left arithmetic
-   -- Rotate left
--- Neat thing about the 'left' operations is that the bit string only needs be transposed.
-
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
@@ -16,6 +13,7 @@ ENTITY BARREL_SHIFTER_16 IS
       A : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
       B : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
       LEFT: IN STD_LOGIC; -- 1 is reversal
+      A_SHIFT : IN STD_LOGIC; -- 1 for arithmetic
       Y : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
    );
 END BARREL_SHIFTER_16;
@@ -32,18 +30,21 @@ ARCHITECTURE behavioural OF BARREL_SHIFTER_16 IS
    SIGNAL data_reversal_2_in : STD_LOGIC_VECTOR(31 DOWNTO 0);
    SIGNAL data_reversal_2_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
 
+   SIGNAL sra_mux_output: STD_LOGIC;
 BEGIN
    -- CREATE THE HARDWARE
+   SRA_MUX : entity work.MUX2_1 PORT MAP ( SEL => A_SHIFT, A => data_reversal_1_out(15), B => '0', C => sra_mux_output);
+
    BARREL_SHIFTER_16 : --FIRST AND LAST MUX ARRAYS ARE FOR REVERSAL
    for i in 5 downto 0 generate
       TOP_REVERSAL : if i = 5 generate
-         TRV : entity work.MUX_ARRAY_16 PORT MAP( data_in => data_reversal_1_in, S => LEFT, data_out => data_reversal_1_out);
+         TRV : entity work.MUX_ARRAY GENERIC MAP (num => 16) PORT MAP( data_in => data_reversal_1_in, S => LEFT, data_out => data_reversal_1_out);
       end generate TOP_REVERSAL;
       BOTTOM_REVERSAL : if i = 0 generate
-         BRV : entity work.MUX_ARRAY_16 PORT MAP( data_in => data_reversal_2_in, S => LEFT, data_out => data_reversal_2_out);
+         BRV : entity work.MUX_ARRAY GENERIC MAP (num => 16) PORT MAP( data_in => data_reversal_2_in, S => LEFT, data_out => data_reversal_2_out);
       end generate BOTTOM_REVERSAL;
       MIDDLE : if i = 1 or i = 2 or i = 3 or i = 4 generate
-         BS : entity work.MUX_ARRAY_16 PORT MAP( data_in => array_in(i-1), S => B(i-1), data_out => array_out(i-1));
+         BS : entity work.MUX_ARRAY GENERIC MAP (num => 16) PORT MAP( data_in => array_in(i-1), S => B(i-1), data_out => array_out(i-1));
       end generate MIDDLE;
    end generate BARREL_SHIFTER_16;
 
@@ -81,7 +82,6 @@ BEGIN
    data_reversal_1_in(30) <= A(0);
    data_reversal_1_in(31) <= A(15);  
    
-   -- seems to work
    array_in(3)(0) <= data_reversal_1_out(8);
    array_in(3)(1) <= data_reversal_1_out(0);
    array_in(3)(2) <= data_reversal_1_out(9);
@@ -98,24 +98,23 @@ BEGIN
    array_in(3)(13) <= data_reversal_1_out(6);
    array_in(3)(14) <= data_reversal_1_out(15);
    array_in(3)(15) <= data_reversal_1_out(7);
-   array_in(3)(16) <= '0';
+   array_in(3)(16) <= sra_mux_output;
    array_in(3)(17) <= data_reversal_1_out(8);
-   array_in(3)(18) <= '0';
+   array_in(3)(18) <= sra_mux_output;
    array_in(3)(19) <= data_reversal_1_out(9);
-   array_in(3)(20) <= '0';
+   array_in(3)(20) <= sra_mux_output;
    array_in(3)(21) <= data_reversal_1_out(10);
-   array_in(3)(22) <= '0';
+   array_in(3)(22) <= sra_mux_output;
    array_in(3)(23) <= data_reversal_1_out(11);
-   array_in(3)(24) <= '0';
+   array_in(3)(24) <= sra_mux_output;
    array_in(3)(25) <= data_reversal_1_out(12);
-   array_in(3)(26) <= '0';
+   array_in(3)(26) <= sra_mux_output;
    array_in(3)(27) <= data_reversal_1_out(13);
-   array_in(3)(28) <= '0';
+   array_in(3)(28) <= sra_mux_output;
    array_in(3)(29) <= data_reversal_1_out(14);
-   array_in(3)(30) <= '0';
-   array_in(3)(31) <= data_reversal_1_out(15);
+   array_in(3)(30) <= sra_mux_output;
+   array_in(3)(31) <= data_reversal_1_out(15) ;
 
-   -- seems to work
    array_in(2)(0) <= array_out(3)(4);
    array_in(2)(1) <= array_out(3)(0);
    array_in(2)(2) <= array_out(3)(5);
@@ -140,16 +139,15 @@ BEGIN
    array_in(2)(21) <= array_out(3)(10);
    array_in(2)(22) <= array_out(3)(15);
    array_in(2)(23) <= array_out(3)(11);
-   array_in(2)(24) <= '0';
+   array_in(2)(24) <= sra_mux_output;
    array_in(2)(25) <= array_out(3)(12);
-   array_in(2)(26) <= '0';
+   array_in(2)(26) <= sra_mux_output;
    array_in(2)(27) <= array_out(3)(13);
-   array_in(2)(28) <= '0';
+   array_in(2)(28) <= sra_mux_output;
    array_in(2)(29) <= array_out(3)(14);
-   array_in(2)(30) <= '0';
+   array_in(2)(30) <= sra_mux_output;
    array_in(2)(31) <= array_out(3)(15);
 
-   -- problems
    array_in(1)(0) <= array_out(2)(2);
    array_in(1)(1) <= array_out(2)(0);
    array_in(1)(2) <= array_out(2)(3);
@@ -178,13 +176,11 @@ BEGIN
    array_in(1)(25) <= array_out(2)(12);
    array_in(1)(26) <= array_out(2)(15);
    array_in(1)(27) <= array_out(2)(13);
-   array_in(1)(28) <= '0';
+   array_in(1)(28) <= sra_mux_output;
    array_in(1)(29) <=  array_out(2)(14);
-   array_in(1)(30) <= '0';
+   array_in(1)(30) <= sra_mux_output;
    array_in(1)(31) <= array_out(2)(15);
-   
-   
-   -- problems
+
    array_in(0)(0) <= array_out(1)(1);
    array_in(0)(1) <= array_out(1)(0);
    array_in(0)(2) <= array_out(1)(2);
@@ -215,7 +211,7 @@ BEGIN
    array_in(0)(27) <= array_out(1)(13);
    array_in(0)(28) <= array_out(1)(15); 
    array_in(0)(29) <= array_out(1)(14);
-   array_in(0)(30) <= '0';
+   array_in(0)(30) <= sra_mux_output;
    array_in(0)(31) <= array_out(1)(15);
 
    data_reversal_2_in(0) <= array_out(0)(15);
@@ -250,7 +246,7 @@ BEGIN
    data_reversal_2_in(29) <= array_out(0)(14);
    data_reversal_2_in(30) <= array_out(0)(0);
    data_reversal_2_in(31) <= array_out(0)(15); 
-
+   
    Y <= data_reversal_2_out;
 
 END behavioural;
