@@ -1,9 +1,9 @@
 -- a 16 bit barrel shifter that can perform
    -- Shift right logical
    -- Shift right arithmetic
-   -- Rotate right
-   -- Shift left logical
-   -- Shift left arithmetic
+   -- Shift left logical/arithemtic
+-- includes overflow logic
+   
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
@@ -13,8 +13,10 @@ ENTITY BARREL_SHIFTER_16 IS
       A : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
       B : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
       LEFT: IN STD_LOGIC; -- 1 is reversal
-      A_SHIFT : IN STD_LOGIC; -- 1 for arithmetic
+      AR_SHIFT : IN STD_LOGIC; -- 1 for arithmetic
+      AL_SHIFT : IN STD_LOGIC; -- 1 for arithmetic
       Y : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+      O_FLAG : OUT STD_LOGIC; -- 1 for overflow
    );
 END BARREL_SHIFTER_16;
 
@@ -31,9 +33,14 @@ ARCHITECTURE behavioural OF BARREL_SHIFTER_16 IS
    SIGNAL data_reversal_2_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
 
    SIGNAL sra_mux_output: STD_LOGIC;
+   SIGNAL sla_mux_output: STD_LOGIC;
+
+   
 BEGIN
    -- CREATE THE HARDWARE
-   SRA_MUX : entity work.MUX2_1 PORT MAP ( SEL => A_SHIFT, A => data_reversal_1_out(15), B => '0', C => sra_mux_output);
+   SRA_MUX : entity work.MUX2_1 PORT MAP ( SEL => AR_SHIFT, A => data_reversal_1_out(15), B => '0', C => sra_mux_output);
+   
+   SLA_MUX : entity work.MUX2_1 PORT MAP ( SEL => AL_SHIFT, A => data_reversal_1_out(0), B => array_out(0)(0), C => sla_mux_output);
 
    BARREL_SHIFTER_16 : --FIRST AND LAST MUX ARRAYS ARE FOR REVERSAL
    for i in 5 downto 0 generate
@@ -48,6 +55,9 @@ BEGIN
       end generate MIDDLE;
    end generate BARREL_SHIFTER_16;
 
+   OVERFLOW_DETECTION : 
+   for n in 
+   
    -- WIRE THE SIGNALS
    data_reversal_1_in(0) <= A(15);
    data_reversal_1_in(1) <= A(0);
@@ -215,7 +225,7 @@ BEGIN
    array_in(0)(31) <= array_out(1)(15);
 
    data_reversal_2_in(0) <= array_out(0)(15);
-   data_reversal_2_in(1) <= array_out(0)(0);
+   data_reversal_2_in(1) <= sla_mux_output;
    data_reversal_2_in(2) <= array_out(0)(14);
    data_reversal_2_in(3) <= array_out(0)(1);
    data_reversal_2_in(4) <= array_out(0)(13);
@@ -244,7 +254,7 @@ BEGIN
    data_reversal_2_in(27) <= array_out(0)(13);
    data_reversal_2_in(28) <= array_out(0)(1);
    data_reversal_2_in(29) <= array_out(0)(14);
-   data_reversal_2_in(30) <= array_out(0)(0);
+   data_reversal_2_in(30) <= sla_mux_output;
    data_reversal_2_in(31) <= array_out(0)(15); 
    
    Y <= data_reversal_2_out;

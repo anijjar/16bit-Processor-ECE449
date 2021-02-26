@@ -24,12 +24,13 @@ END ALU_16;
 
 ARCHITECTURE behavioural OF ALU_16 IS
 
-   BARREL_SHIFTER_16 : ENTITY work.BARREL_SHIFTER_16 PORT MAP(RBS_16_D_IN, RBS_16_SHIFT, RBS_16_D_OUT);
-   SIGNAL RBS_16_D_IN, RBS_16_D_OUT : STD_LOGIC_VECTOR (15 DOWNTO 0);
-   SIGNAL RBS_16_SHIFT : STD_LOGIC_VECTOR (3 DOWNTO 0);
+   BARREL_SHIFTER_16 : ENTITY work.BARREL_SHIFTER_16 PORT MAP(A => BS_16_D_IN, B => BS_16_SHIFT, LEFT => BS_16_LEFT, AR_SHIFT => BS_16_AR_SEL, AL_SHIFT => BS_16_AR_SEL, Y => BS_16_D_OUT);
 
-   SIGNAL cl : STD_LOGIC_VECTOR(3 DOWNTO 0);
-
+   SIGNAL BS_16_D_IN : STD_LOGIC_VECTOR (15 DOWNTO 0);
+   SIGNAL BS_16_SHIFT : STD_LOGIC_VECTOR (3 DOWNTO 0);
+   SIGNAL BS_16_LEFT : STD_LOGIC;
+   SIGNAL BS_16_AR_SEL, BS_16_AR_SEL : STD_LOGIC;
+   SIGNAL BS_16_D_OUT : STD_LOGIC_VECTOR (15 DOWNTO 0);
 BEGIN
    PROCESS (rst, alu_mode, in1, in2)
    BEGIN
@@ -56,13 +57,19 @@ BEGIN
             WHEN "100" => -- NAND
                result <= in1 NAND in2;
             WHEN "101" => -- SHL
-
+               BS_16_D_IN <= IN1;
+               RBS_16_SHIFT <= IN2(3 downto 0); --supports upto 15 shifts
+               BS_16_LEFT <= '1';
+               BS_16_AR_SEL <= '0';
+               BS_16_AL_SEL <= '0';
+               result <= RBS_16_D_OUT;
             WHEN "110" => -- SHR
-               if (IN2 > X"0") and (IN2 <= X"F") then --ensure input is less than 4 bit but greater than 0
-                  RBS_16_D_IN <= IN1;
-                  RBS_16_SHIFT <= cl;
-                  result <= RBS_16_D_OUT;
-               end if
+               BS_16_D_IN <= IN1;
+               RBS_16_SHIFT <= IN2(3 downto 0); --supports upto 15 shifts
+               BS_16_LEFT <= '0';
+               BS_16_AR_SEL <= '0';
+               BS_16_AL_SEL <= '0';
+               result <= RBS_16_D_OUT;
             WHEN "111" => -- TEST
 
             WHEN OTHERS => NULL;
