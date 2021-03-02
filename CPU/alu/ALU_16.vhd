@@ -36,7 +36,6 @@ BEGIN
    BEGIN
       IF (rst = '1') THEN
          -- not sure if output needs to be set to zero
-         -- RF8_16 does not do this
          result <= (OTHERS => '0');
          z_flag <= '0';
          n_flag <= '0';

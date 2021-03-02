@@ -23,6 +23,7 @@ ARCHITECTURE behavioural OF register_file IS
     TYPE reg_array IS ARRAY (INTEGER RANGE 0 TO 7) OF STD_LOGIC_VECTOR(15 DOWNTO 0);
     --internals signals
     SIGNAL reg_file : reg_array;
+    -- add a 8-bit status register for the flags
 BEGIN
     --write operation 
     PROCESS (clk)
