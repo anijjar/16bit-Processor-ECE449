@@ -8,17 +8,18 @@ use xpm.vcomponents.all;
 
 entity ROM is
   port (
-   Clock   : in std_logic;
+    Clock   : in std_logic;
 	Reset	: in std_logic;	
 	Enable	: in std_logic;
 	Read	: in std_logic;
-	Address	: in std_logic_vector(4 downto 0);
-	Data_out: out std_logic_vector(7 downto 0)
+	Address	: in std_logic_vector(15 downto 0);
+    Data_out: out std_logic_vector(15 downto 0)
   ) ;
 end ROM ; 
 
 architecture arch of ROM is
-
+			
+begin
 -- xpm_memory_sprom: Single Port ROM
 -- Xilinx Parameterized Macro, Version 2017.4
 xpm_memory_sprom_inst : xpm_memory_sprom
@@ -26,7 +27,7 @@ xpm_memory_sprom_inst : xpm_memory_sprom
     -- Common module generics
     MEMORY_SIZE             => 1024,            --positive integer
     MEMORY_PRIMITIVE        => "auto",          --string; "auto", "distributed", or "block";
-    MEMORY_INIT_FILE        => "none",          --string; "none" or "<filename>.mem" 
+    MEMORY_INIT_FILE        => "test.mem",          --string; "none" or "<filename>.mem" 
     MEMORY_INIT_PARAM       => "",              --string;
     USE_MEM_INIT            => 1,               --integer; 0,1
     WAKEUP_TIME             => "disable_sleep", --string; "disable_sleep" or "use_sleep_pin" 
@@ -37,9 +38,9 @@ xpm_memory_sprom_inst : xpm_memory_sprom
 
     -- Port A module generics
     READ_DATA_WIDTH_A       => 16,              --positive integer
-    ADDR_WIDTH_A            => 10,               --positive integer
+    ADDR_WIDTH_A            => 16,               --positive integer
     READ_RESET_VALUE_A      => "0",             --string
-    READ_LATENCY_A          => 2                --non-negative integer
+    READ_LATENCY_A          => 1                --non-negative integer
   )
   port map (
     -- Common module ports
@@ -57,7 +58,6 @@ xpm_memory_sprom_inst : xpm_memory_sprom
     dbiterra                => open   --do not change
   );
 
-				
-begin
+	
 
 end architecture ;
