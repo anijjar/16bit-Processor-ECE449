@@ -19,17 +19,17 @@ ARCHITECTURE Behavioral OF RAM_TB IS
    SIGNAL DOUTB : STD_LOGIC_VECTOR(15 DOWNTO 0);
 
 BEGIN
-   RAM : ENTITY work.RAM PORT MAP(CLK, RSTA, RSTB, ENA, ENB, WENA, ADDA, ADDB, DINA, DOUTA, DOUTB);
+   RAM : ENTITY work.RAM PORT MAP(Clock => CLK, Reset_a => RSTA, Reset_b => RSTB, Enable_a => ENA, Enable_b => ENB, Write_en_a => WENA, Adress_a => ADDA, Address_b => ADDB, data_in_a => DINA, Data_out_a => DOUTA, Data_out_b => DOUTB);
 
    clock : PROCESS
    BEGIN
       CLK <= '0';
-      WAIT FOR 20 us;
+      WAIT FOR 10 us;
       CLK <= '1';
-      WAIT FOR 20 us;
+      WAIT FOR 10 us;
    END PROCESS;
 
-   TESTS : PROCESS
+   RAM_TESTS : PROCESS
    BEGIN
       RSTA <= '1';
       RSTB <= '1';
@@ -46,8 +46,9 @@ BEGIN
       ADDA <= x"0000";
       ADDB <= x"0001";
       DINA <= x"FFFF";
-
       WAIT UNTIL (CLK = '1' AND CLK'event); -- HERE READ FROM PORT A
+      ENA <= '1';
+      ADDA <= x"0004";
       WAIT;
    END PROCESS;
 END Behavioral;
