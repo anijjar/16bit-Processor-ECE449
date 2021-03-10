@@ -16,7 +16,8 @@ ENTITY FETCH_CONTROLLER IS
       rb : OUT std_logic_vector(2 downto 0);
       rc : OUT std_logic_vector(2 downto 0);
       imm : OUT std_logic_vector(N-1 downto 0);
-
+	  NPC : out std_logic_vector(15 downto 0);
+	  
       -- outgoing for RAM
       Reset_a	: out std_logic;	
       Reset_b	: out std_logic;	
@@ -48,11 +49,8 @@ ARCHITECTURE behav OF FETCH_CONTROLLER IS
    SIGNAL NPC_rst : STD_LOGIC <= '0';
 
    SIGNAL IFID_rst : std_logic <= '0';
-   SIGNAL IFID_in_opcode : std_logic_vector(6 downto 0);
-   SIGNAL IFID_in_ra : std_logic_vector(2 downto 0);
-   SIGNAL IFID_in_rb : std_logic_vector(2 downto 0);
-   SIGNAL IFID_in_rc : std_logic_vector(2 downto 0);
-   SIGNAL IFID_in_imm : std_logic_vector(N-1 downto 0);
+   SIGNAL IFID_in_instruction : std_logic_vector( 15 downto 0);
+   SIGNAL IFID_in_NPC : std_logic_vector(15 downto 0);
 
    SIGNAL IFID_out_opcode : std_logic_vector(6 downto 0); 
    SIGNAL IFID_out_ra : std_logic_vector(2 downto 0);
@@ -70,18 +68,21 @@ BEGIN
    
    IR : ENTITY work.IR PORT MAP(clk => clk, rst => IR_rst, input => Data_out_b, output => IR_output); -- port b of ram always mapped to input of Instruction Reg
 
-   IFID_LATCH : ENTITY.IFID PORT MAP(rst => IFID_rst, clk => clk, in_opcode => IFID_in_opcode, in_ra => IFID_in_ra, in_rb => IFID_in_rb, in_rc => IFID_in_rc, in_imm => IFID_in_imm, out_opcode => IFID_out_opcode, out_ra => IFID_out_ra, out_rb => IFID_out_rb, out_rc => IFID_out_rc, out_imm => IFID_out_imm
+   IFID_LATCH : ENTITY.IFID PORT MAP(
+   rst => IFID_rst, 
+   clk => clk, 
+   in_instruction => IFID_in_instruction,
+   in_NPC => IFID_in_NPC,
+   out_opcode => IFID_out_opcode, 
+   out_ra => IFID_out_ra, 
+   out_rb => IFID_out_rb, 
+   out_rc => IFID_out_rc, 
+   out_imm => IFID_out_imm
    )
    
-   PROCESS (clk, input_address)
-   -- make an opcode
-      CONSTANT RST_LD_ADDRESS : STD_LOGIC_VECTOR(15 DOWNTO 0) := X"0002";
-      CONSTANT RST_EX_ADDRESS : STD_LOGIC_VECTOR(15 DOWNTO 0) := X"0000";  
-   BEGIN
-      IF (rising_edge(clk)) THEN
-        
+   -- map ports to signals
+   input_address <= PC_output;
+   
 
-      END IF
-   END PROCESS
 
 END behav;

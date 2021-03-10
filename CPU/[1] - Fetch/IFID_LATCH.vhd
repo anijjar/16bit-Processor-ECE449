@@ -7,30 +7,25 @@ ENTITY IFID_LATCH IS
         rst : IN STD_LOGIC;
         clk : IN STD_LOGIC;
         -- any input signals
-        in_opcode  : in  std_logic_vector(6 downto 0);
-        in_ra      : in  std_logic_vector(2 downto 0);
-        in_rb      : in  std_logic_vector(2 downto 0);
-        in_rc      : in  std_logic_vector(2 downto 0);
-        --added am imediate field
-        in_imm      : in  std_logic_vector(15 downto 0);
+		in_instruction : in std_logic_vector(15 downto 0);
         -- matching output signals
         out_opcode : out std_logic_vector(6 downto 0);
         out_ra     : out std_logic_vector(2 downto 0);
         out_rb     : out std_logic_vector(2 downto 0);
         out_rc     : out std_logic_vector(2 downto 0);
-        out_imm     : out std_logic_vector(15 downto 0);
+        out_imm     : out std_logic_vector(3 downto 0)
         );        
 END IFID_LATCH;
 
 ARCHITECTURE behavioural OF IFID_LATCH IS
 
     -- matching internals signals
-    SIGNAL signal_opcode : std_logic_vector(6 downto 0) <= (OTHERS =>'0');
-    SIGNAL signal_ra     : std_logic_vector(2 downto 0) <= (OTHERS =>'0');
-    SIGNAL signal_rb     : std_logic_vector(2 downto 0) <= (OTHERS =>'0');
-    SIGNAL signal_rc     : std_logic_vector(2 downto 0) <= (OTHERS =>'0');
-    SIGNAL signal_imm     : std_logic_vector(15 downto 0) <= (OTHERS =>'0');
-
+    SIGNAL signal_opcode : std_logic_vector(6 downto 0) := (OTHERS =>'0');
+    SIGNAL signal_ra     : std_logic_vector(2 downto 0) := (OTHERS =>'0');
+    SIGNAL signal_rb     : std_logic_vector(2 downto 0) := (OTHERS =>'0');
+    SIGNAL signal_rc     : std_logic_vector(2 downto 0) := (OTHERS =>'0');
+    SIGNAL signal_imm     : std_logic_vector(3 downto 0) := (OTHERS =>'0');
+	SIGNAL signal_NPC     : std_logic_vector(15 downto 0) := (OTHERS =>'0');
 
 BEGIN
     --write operation 
@@ -43,14 +38,14 @@ BEGIN
                 signal_ra     <= "000";
                 signal_rb     <= "000";
                 signal_rc     <= "000";
-                signal_imm    <= X"0000";
+                signal_imm    <= "0000";
             else
                 -- on raising edge, input data and store
-                signal_opcode <= in_opcode;
-                signal_ra     <= in_ra;
-                signal_rb     <= in_rb;
-                signal_rc     <= in_rc;
-                signal_imm    <= in_imm;
+                signal_opcode <= in_instruction(15 downto 9);
+                signal_ra     <= in_instruction(8 downto 6);
+                signal_rb     <= in_instruction(5 downto 3);
+                signal_rc     <= in_instruction(2 downto 0);
+                signal_imm    <= in_instruction(3 downto 0);
             END if;
         END if;
     END PROCESS;

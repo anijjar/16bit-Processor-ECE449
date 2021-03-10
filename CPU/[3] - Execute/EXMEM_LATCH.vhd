@@ -23,10 +23,10 @@ END EXMEM_LATCH;
 ARCHITECTURE behavioural OF EXMEM_LATCH IS
 
     -- matching internals signals
-    SIGNAL signal_ar      : std_logic_vector(15 downto 0) <= X"0000";
-    SIGNAL signal_regwb   : std_logic <= '0';
-    SIGNAL signal_memwb   : std_logic <= '0';
-    SIGNAL signal_ra      : std_logic_vector(2  downto 0) <= "000";
+    SIGNAL signal_ar      : std_logic_vector(15 downto 0) := X"0000";
+    SIGNAL signal_regwb   : std_logic := '0';
+    SIGNAL signal_memwb   : std_logic := '0';
+    SIGNAL signal_ra      : std_logic_vector(2  downto 0) := "000";
     BEGIN
     --write operation 
     PROCESS(clk)

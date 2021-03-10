@@ -63,7 +63,7 @@ ARCHITECTURE behavioural OF IDEX_LATCH IS
     END PROCESS;
     -- async, output all internally stored values
     out_dr1     <= signal_dr1;
-    out_dr12    <= signal_dr2;
+    out_dr2    <= signal_dr2;
     out_alumode <= signal_alumode;
     out_regwb   <= signal_regwb;
     out_memwb   <= signal_memwb;
