@@ -17,7 +17,7 @@ ENTITY MEMORY_CONTROLLER IS
 	  
 	  --memwb latch
 	  out_reg_wb : out STD_LOGIC; -- 1 for regiseter, 0 for system out
-	  out_ar : out std_logic_vector(15 downto 0);
+	  out_ar : out std_logic_vector(16 downto 0);
 	  out_ra : out std_logic_vector(2 downto 0);
 	  
 	  --add pins for port a of ram
@@ -31,30 +31,29 @@ ENTITY MEMORY_CONTROLLER IS
    );        
 END MEMORY_CONTROLLER;
 
-ARCHITECTURE behav OF MEMORY_CONTROLLER IS
+ARCHITECTURE level_2 OF MEMORY_CONTROLLER IS
 	
 
 BEGIN
-   process(in_ar, in_ra, in_regwb, in_memwb)
+   process(rst, in_ar, in_ra, in_regwb, in_memwb)
    begin
    if (rst = '1') then
 	 out_reg_wb <= '0';
-	 out_ar <= X"0000";
-	 out_ra <= X"0000";
+	 out_ar <= "00000000000000000";
+	 out_ra <= "000";
    else
-	   if(in_regwb = '1') then
-         out_ar <= in_ar; --data
-         out_ra <= in_ra; -- address
-         out_reg_wb <= in_regwb; --enable wb
-      end if;
-      -- worry about this when L instructions
-      -- if(in_memwb = '1') then
-      --    out_RAM_rst_a <= '0'; 
-      --    out_RAM_en_a <= '1';
-      --    out_RAM_wen_a <= '1'; 
-      --    out_RAM_addy_a <= in_ar; -- contents of ra go here
-      --    out_RAM_din_a <= 
-      -- end if;
+      -- forward regester info and writeback signal
+      out_ar <= in_ar; --data
+      out_ra <= in_ra; -- address
+      out_reg_wb <= in_regwb; --enable wb
+        -- ignore this for now
+       --if(in_memwb = '1') then
+          out_RAM_rst_a <= '0'; 
+          out_RAM_en_a <= '0';
+          out_RAM_wen_a <= "0"; 
+          out_RAM_addy_a <= "0000000000000000"; -- contents of ra go here
+          out_RAM_din_a <= in_ar(15 downto 0);
+       --end if;
    end if;
    end process;
-END behav;
+END level_2;

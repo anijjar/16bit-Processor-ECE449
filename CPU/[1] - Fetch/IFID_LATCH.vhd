@@ -3,56 +3,51 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
 
 ENTITY IFID_LATCH IS
-    PORT (
-        rst : IN STD_LOGIC;
-        clk : IN STD_LOGIC;
-        -- any input signals
-		in_instruction : in std_logic_vector(15 downto 0);
-        -- matching output signals
-        out_opcode : out std_logic_vector(6 downto 0);
-        out_ra     : out std_logic_vector(2 downto 0);
-        out_rb     : out std_logic_vector(2 downto 0);
-        out_rc     : out std_logic_vector(2 downto 0);
-        out_imm     : out std_logic_vector(3 downto 0)
-        );        
+   PORT (
+      rst : IN STD_LOGIC;
+      clk : IN STD_LOGIC;
+      -- any input signals
+      input : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+      -- matching output signals
+      out_opcode : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
+      out_ra : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+      out_rb : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+      out_rc : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+   );
 END IFID_LATCH;
 
-ARCHITECTURE behavioural OF IFID_LATCH IS
+ARCHITECTURE level_2 OF IFID_LATCH IS
 
-    -- matching internals signals
-    SIGNAL signal_opcode : std_logic_vector(6 downto 0) := (OTHERS =>'0');
-    SIGNAL signal_ra     : std_logic_vector(2 downto 0) := (OTHERS =>'0');
-    SIGNAL signal_rb     : std_logic_vector(2 downto 0) := (OTHERS =>'0');
-    SIGNAL signal_rc     : std_logic_vector(2 downto 0) := (OTHERS =>'0');
-    SIGNAL signal_imm     : std_logic_vector(3 downto 0) := (OTHERS =>'0');
-	SIGNAL signal_NPC     : std_logic_vector(15 downto 0) := (OTHERS =>'0');
+   -- matching internals signals
+   SIGNAL signal_opcode : STD_LOGIC_VECTOR(6 DOWNTO 0) := (OTHERS => '0');
+   SIGNAL signal_ra : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
+   SIGNAL signal_rb : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
+   SIGNAL signal_rc : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
 
 BEGIN
-    --write operation 
-    PROCESS(clk)
-    BEGIN
-        if (rising_edge(clk)) THEN
-            if (rst = '1') THEN
-                -- rst, set all internal latch variables to zero
-                signal_opcode <= "0000000";
-                signal_ra     <= "000";
-                signal_rb     <= "000";
-                signal_rc     <= "000";
-                signal_imm    <= "0000";
-            else
-                -- on raising edge, input data and store
-                signal_opcode <= in_instruction(15 downto 9);
-                signal_ra     <= in_instruction(8 downto 6);
-                signal_rb     <= in_instruction(5 downto 3);
-                signal_rc     <= in_instruction(2 downto 0);
-                signal_imm    <= in_instruction(3 downto 0);
-            END if;
-        END if;
-    END PROCESS;
-    -- async, output all internally stored values
-    out_opcode <= signal_opcode;
-    out_ra <= signal_ra;
-    out_rb <= signal_rb;
-    out_rc <= signal_rc;
-    out_imm <= signal_imm;
-END behavioural;
+   --write operation 
+   PROCESS (clk)
+   BEGIN
+      -- read on falling edge because RAM outputs on falling edge
+      IF (rising_edge(clk)) THEN
+         IF (rst = '1') THEN
+            -- rst, set all internal latch variables to zero
+            signal_opcode <= "0000000";
+            signal_ra <= "000";
+            signal_rb <= "000";
+            signal_rc <= "000";
+         ELSE
+            -- on raising edge, input data and store
+            signal_opcode <= input(15 DOWNTO 9);
+            signal_ra <= input(8 DOWNTO 6);
+            signal_rb <= input(5 DOWNTO 3);
+            signal_rc <= input(2 DOWNTO 0);
+         END IF;
+      END IF;
+   END PROCESS;
+   -- async, output all internally stored values
+   out_opcode <= signal_opcode;
+   out_ra <= signal_ra;
+   out_rb <= signal_rb;
+   out_rc <= signal_rc;
+END level_2;

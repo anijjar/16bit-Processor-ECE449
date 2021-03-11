@@ -8,12 +8,12 @@ ENTITY EXMEM_LATCH IS
         rst : IN STD_LOGIC;
         clk : IN STD_LOGIC;
         -- any input signals
-        in_ar       : in  std_logic_vector(15 downto 0); --ALU RESULT
+        in_ar       : in  std_logic_vector(16 downto 0); --ALU RESULT
         in_regwb    : in  std_logic; -- REGISTER OPRAND
         in_memwb    : in  std_logic; -- MEMORY OPRAND
         in_ra       : in  std_logic_vector(2  downto 0);
         -- matching output signals
-        out_ar      : out std_logic_vector(15 downto 0);
+        out_ar      : out std_logic_vector(16 downto 0);
         out_regwb   : out std_logic;
         out_memwb   : out std_logic;
         out_ra      : out std_logic_vector(2  downto 0)
@@ -23,7 +23,7 @@ END EXMEM_LATCH;
 ARCHITECTURE behavioural OF EXMEM_LATCH IS
 
     -- matching internals signals
-    SIGNAL signal_ar      : std_logic_vector(15 downto 0) := X"0000";
+    SIGNAL signal_ar      : std_logic_vector(16 downto 0) := (others => '0');
     SIGNAL signal_regwb   : std_logic := '0';
     SIGNAL signal_memwb   : std_logic := '0';
     SIGNAL signal_ra      : std_logic_vector(2  downto 0) := "000";
@@ -34,7 +34,7 @@ ARCHITECTURE behavioural OF EXMEM_LATCH IS
         if (rising_edge(clk)) THEN
             if (rst = '1') THEN
                 -- rst, set all internal latch variables to zero
-                signal_ar     <= X"0000";
+                signal_ar     <= (others => '0');
                 signal_regwb   <= '0';
                 signal_memwb   <= '0';
                 signal_ra      <= "000";

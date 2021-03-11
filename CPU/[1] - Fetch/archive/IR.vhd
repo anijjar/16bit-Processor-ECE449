@@ -6,10 +6,9 @@ ENTITY IR IS
       N : INTEGER := 16
    );
    PORT (
-      clk : IN STD_LOGIC;
-      rst : IN STD_LOGIC;
-
-      input : IN STD_LOGIC_VECTOR(N-1 DOWNTO 0);
+      clk    : IN STD_LOGIC;
+      rst    : IN STD_LOGIC;
+      input  : IN STD_LOGIC_VECTOR(N-1 DOWNTO 0);
       output : OUT STD_LOGIC_VECTOR(N-1 DOWNTO 0)
    );        
 END IR;

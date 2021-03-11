@@ -9,9 +9,9 @@ ENTITY MUX_ARRAY IS
       num : INTEGER
    );
    PORT (
-      data_in : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+      data_in : IN STD_LOGIC_VECTOR ((2*num)-1 DOWNTO 0);
       s : IN STD_LOGIC;
-      data_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+      data_out : OUT STD_LOGIC_VECTOR(num-1 DOWNTO 0)
    );
 END MUX_ARRAY;
 

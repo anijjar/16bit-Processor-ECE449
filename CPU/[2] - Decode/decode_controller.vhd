@@ -17,16 +17,15 @@ entity DECODE_CONTROLLER is
         altd2   : out std_logic_vector(16 downto 0);
         r2den   : out std_logic;
         regwb   : out std_logic;
-		        --added am imediate field
-        imm      : in  std_logic_vector(15 downto 0);
-        memwb   : out std_logic
+        memwb   : out std_logic;
+        usr_flag : out std_logic
     );
 end DECODE_CONTROLLER;
 
 architecture behavioural of DECODE_CONTROLLER is
     signal format : std_logic_vector(2 downto 0) := "000";
 begin
-    process(rst, opcode, ra, rb, rc)
+    process(rst, opcode, ra, rb, rc, format)
     begin
     if (rst = '1') then
         alumode <= "000";
@@ -83,12 +82,14 @@ begin
                 alumode <= "000";
                 format  <= "011"; 
                 regwb <= '0';
-                memwb <= '1'; 
+                memwb <= '1';
+                usr_flag <= '0'; 
 
             -- IN
             when "0100001" => 
                 alumode <= "000";
                 format  <= "011"; 
+                usr_flag <= '1';
                 regwb <= '1';
                 memwb <= '0'; 
 
@@ -115,6 +116,7 @@ begin
                 r1a     <= "000";
                 r2a     <= "000";
                 r2den   <= '1';
+                usr_flag <= '0';
                 altd2   <= (others => '0');
 
             -- Format A1
@@ -125,6 +127,7 @@ begin
                 r1a     <= rb;
                 r2a     <= rc;
                 r2den   <= '1';
+                usr_flag <= '0';
                 altd2   <= (others => '0');
 
             -- Format A2
@@ -134,6 +137,7 @@ begin
                 rdst    <= ra;
                 r1a     <= ra;
                 r2den   <= '0';
+                usr_flag <= '0';
                 altd2   <= '0' & X"000" & rb(0) & rc(2 downto 0);
 
             -- Format A3
