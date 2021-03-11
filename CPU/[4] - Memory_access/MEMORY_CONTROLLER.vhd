@@ -47,13 +47,13 @@ BEGIN
       out_ra <= in_ra; -- address
       out_reg_wb <= in_regwb; --enable wb
         -- ignore this for now
-       --if(in_memwb = '1') then
+       if(in_memwb = '1') then
           out_RAM_rst_a <= '0'; 
           out_RAM_en_a <= '0';
           out_RAM_wen_a <= "0"; 
           out_RAM_addy_a <= "0000000000000000"; -- contents of ra go here
           out_RAM_din_a <= in_ar(15 downto 0);
-       --end if;
+       end if;
    end if;
    end process;
 END level_2;

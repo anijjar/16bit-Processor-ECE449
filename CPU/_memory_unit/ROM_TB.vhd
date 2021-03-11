@@ -14,7 +14,14 @@ ARCHITECTURE Behavioral OF ROM_TB IS
    SIGNAL dout : STD_LOGIC_VECTOR(15 DOWNTO 0);
 
 BEGIN
-   ROM : ENTITY work.ROM PORT MAP(Clock => clk, Reset => rst, Enable => en, Read => rd, Address => addy, Data_out => dout);
+   ROM : ENTITY work.ROM PORT MAP(
+    Clock => clk,
+    Reset => rst, 
+    Enable => en, 
+    Read => rd, 
+    Address => addy,
+    Data_out => dout
+    );
 
    clock : PROCESS
    BEGIN
@@ -58,6 +65,30 @@ BEGIN
       en <= '1';
       rd <= '1';
       addy <= x"0004";
+      WAIT UNTIL (clk = '1' AND clk'event);
+      en <= '1';
+      rd <= '1';
+      addy <= x"0005";
+      WAIT UNTIL (clk = '1' AND clk'event);
+      en <= '1';
+      rd <= '1';
+      addy <= x"0006";      
+      WAIT UNTIL (clk = '1' AND clk'event);
+      en <= '1';
+      rd <= '1';
+      addy <= x"0007";      
+      WAIT UNTIL (clk = '1' AND clk'event);
+      en <= '1';
+      rd <= '1';
+      addy <= x"0008";      
+      WAIT UNTIL (clk = '1' AND clk'event);
+      en <= '1';
+      rd <= '1';
+      addy <= x"0009";      
+      WAIT UNTIL (clk = '1' AND clk'event);
+      en <= '1';
+      rd <= '1';
+      addy <= x"000A";   
       WAIT;
    END PROCESS;
 END Behavioral;

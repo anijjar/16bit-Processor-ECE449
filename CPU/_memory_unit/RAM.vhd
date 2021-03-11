@@ -13,8 +13,8 @@ entity RAM is
 	Reset_b	: in std_logic;	
    Enable_a	: in std_logic;
    Enable_b	: in std_logic;
-	Write_en_a	: in std_logic_vector(0 downto 0); -- 1 for bottom bits, 2 for upper, 3 for all
-	Address_a	: in std_logic_vector(15 downto 0); --2^13 addresses in 1024 byte ram
+	Write_en_a	: in std_logic_vector(0 downto 0); 
+	Address_a	: in std_logic_vector(15 downto 0);
 	Address_b	: in std_logic_vector(15 downto 0);
 	data_in_a	: in std_logic_vector(15 downto 0); -- b doesnt do write operations
 	Data_out_a: out std_logic_vector(15 downto 0);
@@ -28,9 +28,9 @@ begin
    generic map (
  
      -- Common module generics
-     MEMORY_SIZE             => 8192,           --positive integer
+     MEMORY_SIZE             => 8192,           --positive integer 
      CLOCKING_MODE           => "common_clock", --string; "common_clock", "independent_clock" 
-     MEMORY_INIT_FILE        => "format_a_test.mem",         --string; "none" or "<filename>.mem" 
+     MEMORY_INIT_FILE        => "format_a.mem",         --string; "none" or "<filename>.mem" 
      MEMORY_INIT_PARAM       => "",             --string;
      USE_MEM_INIT            => 1,              --integer; 0,1
      MESSAGE_CONTROL         => 0,              --integer; 0,1

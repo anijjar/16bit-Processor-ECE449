@@ -42,7 +42,7 @@ ARCHITECTURE level_1 OF CPU IS
    signal rf_wr_enable    : std_logic;
 
    -- Fetch stage Signals
-   signal fc_stall        : std_logic;
+   signal fc_stall        : std_logic; -- nothing is driving this one
    signal fc_rst_ex        : std_logic;
    signal fc_rst_ld        : std_logic;
    signal fc_output   : std_logic_vector(15 downto 0);
@@ -68,8 +68,8 @@ ARCHITECTURE level_1 OF CPU IS
    signal idex_usr_flag: std_logic;
    signal idex_rdst    : std_logic_vector( 2 downto 0);
    signal es_ar        : std_logic_vector(16 downto 0);
-   signal es_z         : std_logic;
-   signal es_n         : std_logic;
+   signal es_z         : std_logic; -- nothing is driving this one
+   signal es_n         : std_logic; -- nothing is driving this one
    signal es_regwb     : std_logic;
    signal es_memwb     : std_logic;
    signal es_rdst      : std_logic_vector( 2 downto 0);
@@ -84,11 +84,6 @@ ARCHITECTURE level_1 OF CPU IS
    signal memwb_out_reg_wb : STD_LOGIC;
    signal memwb_out_ar : std_logic_vector(16 downto 0);
    signal memwb_out_ra : std_logic_vector(2 downto 0);
-
-   -- Writeback stage Siganls
-   signal wb_out_ar : std_logic_vector(16 downto 0);
-   signal wb_out_ra : std_logic_vector(2 downto 0);
-   signal wb_out_ra_wen : std_logic;
 
 begin
 ----+---- Commmon ----+----
@@ -248,29 +243,29 @@ begin
    );
 
 -- PROCESS FOR FINITE STATE MACHINE HERE --
-Finite_state_machine: process(clk, rst_load, rst_ex, usr_input)
-   variable mutex : integer := 0; -- set high when ready to execute
-begin
-   if  rising_edge(clk) and rst_load = '1' and mutex = 0 then
-      mutex := 1;
-      rst <= '1'; -- turn off pipeline by seting 'rst' signal to '1'
-      -- Now only the fetch controller is working...
-      fc_rst_ld <= '1'; -- tell PC to reset
+-- Finite_state_machine: process(clk, rst_load, rst_ex, usr_input)
+--    variable mutex : integer := 0; -- set high when ready to execute
+-- begin
+--    if  rising_edge(clk) and rst_load = '1' and mutex = 0 then
+--       -- mutex := 1;
+--       -- rst <= '1'; -- turn off pipeline by seting 'rst' signal to '1'
+--       -- -- Now only the fetch controller is working...
+--       -- fc_rst_ld <= '1'; -- tell PC to reset
 
-      -- take input pins and input into RAM
-      ram_dina <= usr_input;
-      -- take the ROM output from fetch controller and pass into the ram address
-      ram_addra <= fc_rom_output;
-      -- fetch controller turned on necessary rom signals
+--       -- -- take input pins and input into RAM
+--       -- ram_dina <= usr_input;
+--       -- -- take the ROM output from fetch controller and pass into the ram address
+--       -- ram_addra <= fc_rom_output;
+--       -- -- fetch controller turned on necessary rom signals
 
-      -- at falling edge, the RAM will send the data at location ram_addra into fetch controller 
-   end if;
-   if rising_edge(clk) and rst_ex = '1' and mutex = 1 then
-      -- Begin the Program
-      rst <= '0';
-      -- fetch controller will start. 
-      fc_rst_ex <= '1'; -- tell PC to reset
-   end if;
+--       -- -- at falling edge, the RAM will send the data at location ram_addra into fetch controller 
+--    end if;
+--    if rising_edge(clk) and rst_ex = '1' and mutex = 1 then
+--       -- -- Begin the Program
+--       -- rst <= '0';
+--       -- -- fetch controller will start. 
+--       -- fc_rst_ex <= '1'; -- tell PC to reset
+--    end if;
 
 end process Finite_state_machine;
 

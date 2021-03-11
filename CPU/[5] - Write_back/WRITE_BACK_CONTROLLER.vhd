@@ -14,7 +14,7 @@ ENTITY WRITE_BACK_CONTROLLER IS
       in_ra : in std_logic_vector(2 downto 0);
 	  
       out_cpu : out std_logic_vector(15 downto 0);
-	  out_ar : out std_logic_vector(16 downto 0);
+	   out_ar : out std_logic_vector(16 downto 0);
       out_ra : out std_logic_vector(2 downto 0);
       out_ra_wen : out std_logic
    );        
