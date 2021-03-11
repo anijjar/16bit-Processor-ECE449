@@ -49,7 +49,23 @@ BEGIN
         z_flag   => z_flag,
         n_flag   => n_flag
     );
-    input <= '0' & alu_out(16) & usr_input(15) & alu_out(15) & usr_input(14) & alu_out(14) & usr_input(13) & alu_out(13) & usr_input(12) & alu_out(12) & usr_input(11) & alu_out(11) & usr_input(10) & alu_out(10) & usr_input(9) & alu_out(9) & usr_input(8) & alu_out(8) & usr_input(7) & alu_out(7) & usr_input(6) & alu_out(6) & usr_input(5) & alu_out(5) & usr_input(4) & alu_out(4) & usr_input(3) & alu_out(3) & usr_input(2) & alu_out(2) & usr_input(1) & alu_out(1) & usr_input(0) & alu_out(0);
+    input <=  alu_out(16) & '0' 
+            & alu_out(15) & usr_input(15) 
+            & alu_out(14) & usr_input(14)
+            & alu_out(13) & usr_input(13) 
+            & alu_out(12) & usr_input(12) 
+            & alu_out(11) & usr_input(11) 
+            & alu_out(10) & usr_input(10) 
+            & alu_out(9)  & usr_input(9) 
+            & alu_out(8)  & usr_input(8) 
+            & alu_out(7)  & usr_input(7) 
+            & alu_out(6)  & usr_input(6) 
+            & alu_out(5)  & usr_input(5) 
+            & alu_out(4)  & usr_input(4) 
+            & alu_out(3)  & usr_input(3) 
+            & alu_out(2)  & usr_input(2) 
+            & alu_out(1)  & usr_input(1) 
+            & alu_out(0)  & usr_input(0);
     mux_d : entity work.MUX_ARRAY GENERIC MAP (num => 17) PORT MAP ( 
         data_in  => input,
         S        => usr_flag, 

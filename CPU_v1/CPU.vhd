@@ -251,13 +251,11 @@ begin
 --       -- rst <= '1'; -- turn off pipeline by seting 'rst' signal to '1'
 --       -- -- Now only the fetch controller is working...
 --       -- fc_rst_ld <= '1'; -- tell PC to reset
-
 --       -- -- take input pins and input into RAM
 --       -- ram_dina <= usr_input;
 --       -- -- take the ROM output from fetch controller and pass into the ram address
 --       -- ram_addra <= fc_rom_output;
 --       -- -- fetch controller turned on necessary rom signals
-
 --       -- -- at falling edge, the RAM will send the data at location ram_addra into fetch controller 
 --    end if;
 --    if rising_edge(clk) and rst_ex = '1' and mutex = 1 then
@@ -266,7 +264,6 @@ begin
 --       -- -- fetch controller will start. 
 --       -- fc_rst_ex <= '1'; -- tell PC to reset
 --    end if;
-
-end process Finite_state_machine;
+-- end process Finite_state_machine;
 
 end level_1;
