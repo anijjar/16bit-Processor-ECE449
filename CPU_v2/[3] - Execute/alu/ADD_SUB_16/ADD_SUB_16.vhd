@@ -126,8 +126,8 @@ begin
         (
             LC_G  => LC_Gn_vec1(i+2),
             LC_P  => LC_Pn_vec1(i+2),
-            LC_Gp => LC_Gn_vec1(i+1),
-            LC_Pp => LC_Pn_vec1(i+1),
+            LC_Gp => LC_Gn_vec1(i),
+            LC_Pp => LC_Pn_vec1(i),
             LC_Gn => LC_Gn_vec2(i),
             LC_Pn => LC_Pn_vec2(i)
         );
@@ -167,8 +167,8 @@ begin
         (
             LC_G  => LC_Gn_vec2(i+4),
             LC_P  => LC_Pn_vec2(i+4),
-            LC_Gp => LC_Gn_vec2(i+3),
-            LC_Pp => LC_Pn_vec2(i+3),
+            LC_Gp => LC_Gn_vec2(i),
+            LC_Pp => LC_Pn_vec2(i),
             LC_Gn => LC_Gn_vec3(i),
             LC_Pn => LC_Pn_vec3(i)
         );

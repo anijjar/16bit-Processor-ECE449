@@ -32,10 +32,10 @@ BEGIN
       IF (rising_edge(clk)) THEN
          IF (rst = '1') THEN
             -- rst, set all internal latch variables to zero
-            signal_opcode <= "0000000";
-            signal_ra <= "000";
-            signal_rb <= "000";
-            signal_rc <= "000";
+            signal_opcode <= (OTHERS => '0');
+            signal_ra <= (OTHERS => '0');
+            signal_rb <= (OTHERS => '0');
+            signal_rc <= (OTHERS => '0');
          ELSE
             -- on raising edge, input data and store
             signal_opcode <= input(15 DOWNTO 9);

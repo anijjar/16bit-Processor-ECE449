@@ -1,41 +1,19 @@
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
-USE ieee.std_logic_unsigned.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
 
-ENTITY CPU IS
-   GENERIC (
-      N : INTEGER := 16
-   );
-   PORT (
-      in_rst_ld   : in  std_logic;
-      in_rst_ex     : in  std_logic;
-      clk        : in  std_logic;
-      -- RAM
-      in_ram_douta  : in std_logic_vector(N-1 downto 0);
-      out_ram_dina   : out  std_logic_vector(N-1 downto 0);
-      out_ram_addra  : out std_logic_vector(12 downto 0);
-      out_ram_wea    : out std_logic_vector(0 downto 0);
-      out_ram_rsta   : out std_logic;
-      out_ram_ena    : out std_logic;
-      in_ram_doutb  : in std_logic_vector(N-1 downto 0);
-      out_ram_enb    : out std_logic;
-      out_ram_addrb  : out std_logic_vector(12 downto 0);
-      out_ram_rstb   : out std_logic;
-      -- ROM
-      in_rom_data   : in  std_logic_vector(N-1 downto 0);
-      out_rom_adr    : out std_logic_vector(N-1 downto 0);
-      out_rom_rd_en  : out std_logic;
-      out_rom_rst    : out std_logic;
-      out_rom_rd     : out std_logic; --dont use
-      -- user I/O
-      usr_input  : in  std_logic_vector(N-1 downto 0);              
-      usr_output : out std_logic_vector(N-1 downto 0)              
-   );   
-END CPU;
+ENTITY level_2_tb IS
+   --  Port ( );
+END level_2_tb;
 
-ARCHITECTURE level_1 OF CPU IS
+ARCHITECTURE Behavioral OF level_2_tb IS
+signal clk            :  std_logic;
 signal rst            :  std_logic;
+signal in_rst_ld      :  std_logic;
+signal in_rst_ex      :  std_logic;
+signal fc_in_ram_data : STD_LOGIC_VECTOR(15 DOWNTO 0);
 signal fc_out_output : STD_LOGIC_VECTOR(15 DOWNTO 0);
+signal fc_out_ram_addrb : STD_LOGIC_VECTOR(12 DOWNTO 0);
+signal fc_out_ram_enb   : STD_LOGIC;
 signal ifid_out_opcode : std_logic_vector( 6 downto 0);
 signal ifid_out_ra     : std_logic_vector( 2 downto 0);
 signal ifid_out_rb     : std_logic_vector( 2 downto 0);
@@ -68,6 +46,7 @@ signal idex_out_ra : std_logic_vector(2  downto 0);
 signal idex_out_rb : std_logic_vector(2  downto 0);
 signal idex_out_rc : std_logic_vector(2  downto 0);
 
+signal usr_input : std_logic_vector(15 downto 0); --cpu input
 signal ex_out_AR : std_logic_vector(16 downto 0); --main output
 signal ex_out_z_flag : std_logic;
 signal ex_out_n_flag : std_logic;
@@ -100,19 +79,34 @@ signal memwb_out_ar :  std_logic_vector(16 downto 0);
 signal memwb_out_ra : std_logic_vector(2  downto 0);
 signal memwb_out_ra_data : std_logic_vector(16 downto 0);
 
+signal usr_output : std_logic_vector(15 downto 0);
 signal wb_out_ar : std_logic_vector(16 downto 0);
 signal wb_out_ra : std_logic_vector(2  downto 0);
 signal wb_out_ra_wen : STD_LOGIC;
 
-begin
+BEGIN
 Fetch : ENTITY work.FETCH_CONTROLLER port map (
    clk => clk,
    rst_ex => in_rst_ex,
    rst_ld  => in_rst_ld,
-   out_ram_addrb => out_ram_addrb,
+   out_ram_addrb => fc_out_ram_addrb,
    out_output  => fc_out_output,
-   in_ram_data  => in_ram_doutb, 
-   out_ram_enb   => out_ram_enb 
+   in_ram_data  => fc_in_ram_data, 
+   out_ram_enb   => fc_out_ram_enb 
+);
+
+RAM_tb : ENTITY work.RAM PORT MAP(
+   Clock => clk, 
+   Reset_a => '0', 
+   Reset_b => '0', 
+   Enable_a => '0', 
+   Enable_b => fc_out_ram_enb, 
+   Write_en_a => "0", 
+   Address_a => '0'&X"000",
+   Address_b => fc_out_ram_addrb, 
+   data_in_a => X"0000", 
+   Data_out_a => DOUTA,
+   Data_out_b => fc_in_ram_data
 );
 
 IFID : ENTITY work.IFID_LATCH port map (
@@ -141,7 +135,9 @@ decode_stage_0 : ENTITY work.DECODE_STAGE port map (
     out_memwb    => ds_out_memwb   ,--works
     out_regwb    => ds_out_regwb   ,--works
     out_usr_flag => ds_out_usr_flag, --works
-    out_rdst     => ds_out_rdst    --works
+    out_rdst     => ds_out_rdst,    --works
+    out_rb => ds_out_rb,
+    out_rc => ds_out_rc
 );
 rf : ENTITY work.register_file port map (
    rst  => rst,
@@ -268,27 +264,88 @@ WRITEBACK : ENTITY work.WRITE_BACK_CONTROLLER port map (
    out_ar => wb_out_ar,
    out_ra => wb_out_ra,
    out_ra_wen => wb_out_ra_wen
-);   
-   FSM: process(in_rst_ld, in_rst_ex, rst)
-   begin
-      if( in_rst_ld = '1' or in_rst_ex = '1') then
+);            
+   clock : PROCESS
+   BEGIN
+      CLK <= '1';
+      WAIT FOR 10 us;
+      CLK <= '0';
+      WAIT FOR 10 us;
+   END PROCESS;
+   -- goal:
+   -- read instructions from RAM and parse it **WORKS**
+   -- take parsed instructions and pass into decode stage **WORKS**
+   -- execute instructions **works**
+      -- multiplication is weird
+   -- write the data into memory **fine for now**
+      -- forward data to latch for now
+   -- write data into register or output
+   
+   SYSTEM_TESTS : PROCESS
+   BEGIN
+      in_rst_ex <= '0';
+      in_rst_ld <= '0';
+      --rst <= '1';
+      usr_input <= X"FFFF";
+      WAIT UNTIL (CLK = '0' AND CLK'event);
+      WAIT UNTIL (CLK = '1' AND CLK'event);
+      --rst <= '0';
+--      -- load some values into register
+----      rf_in_wr_index <= "000";
+----      rf_in_wr_data <= '0'&X"0000";
+----      rf_in_wr_enable <= '1';
+--      WAIT UNTIL (CLK = '1' AND CLK'event);
+--      -- load some values into register
+----      rf_in_wr_index <= "001";
+----      rf_in_wr_data <= '0'&X"1111";
+----      rf_in_wr_enable <= '1';
+--      WAIT UNTIL (CLK = '1' AND CLK'event);
+--      -- load some values into register
+----      rf_in_wr_index <= "010";
+----      rf_in_wr_data <= '0'&X"2222";
+----      rf_in_wr_enable <= '1';
+--      WAIT UNTIL (CLK = '1' AND CLK'event);
+--      -- load some values into register
+----      rf_in_wr_index <= "011";
+----      rf_in_wr_data <= '0'&X"3333";
+----      rf_in_wr_enable <= '1';
+--      WAIT UNTIL (CLK = '1' AND CLK'event);
+--      -- load some values into register
+----      rf_in_wr_index <= "100";
+----      rf_in_wr_data <= '0'&X"4444";
+----      rf_in_wr_enable <= '1';
+--      WAIT UNTIL (CLK = '1' AND CLK'event);
+--      -- load some values into register
+----      rf_in_wr_index <= "101";
+----      rf_in_wr_data <= '0'&X"5555";
+----      rf_in_wr_enable <= '1';
+--      WAIT UNTIL (CLK = '1' AND CLK'event);
+--      -- load some values into register
+----      rf_in_wr_index <= "110";
+----      rf_in_wr_data <= '0'&X"6666";
+----      rf_in_wr_enable <= '1';
+--      WAIT UNTIL (CLK = '1' AND CLK'event);
+--      -- load some values into register
+----      rf_in_wr_index <= "111";
+----      rf_in_wr_data <= '0'&X"7777";
+----      rf_in_wr_enable <= '1';
+--      WAIT UNTIL (CLK = '1' AND CLK'event);
+--      rf_in_wr_enable <= '0';
       rst <= '1';
-   else 
+      in_rst_ex <= '1';
+      WAIT UNTIL (CLK = '1' AND CLK'event); 
+      in_rst_ex <= '0';
       rst <= '0';
-   end if;
-   -- pull down rom and ram a
-   out_ram_rstb <= '0';
-
-
-   out_ram_dina   <= X"0000"; 
-   out_ram_addra  <='0'&x"000";
-   out_ram_wea    <= "0";
-   out_ram_rsta   <= '0';
-   out_ram_ena   <= '0';
-
-   out_rom_adr    <= x"0000";
-   out_rom_rd_en  <= '0';
-   out_rom_rst    <= '0';
-   out_rom_rd     <= '0';
-   end process FSM;
-end level_1;
+      WAIT UNTIL (CLK = '1' AND CLK'event);
+      WAIT UNTIL (CLK = '1' AND CLK'event);
+      WAIT UNTIL (CLK = '1' AND CLK'event);  
+      usr_input <= X"0002";
+      WAIT UNTIL (CLK = '1' AND CLK'event);
+      usr_input <= X"0003"; 
+      WAIT UNTIL (CLK = '1' AND CLK'event);
+      usr_input <= X"0001";
+      WAIT UNTIL (CLK = '1' AND CLK'event);
+      usr_input <= X"0005";
+      WAIT;
+   END PROCESS;
+END Behavioral;

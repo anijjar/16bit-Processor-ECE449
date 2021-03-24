@@ -13,9 +13,9 @@ entity RAM is
 	Reset_b	: in std_logic;	
    Enable_a	: in std_logic;
    Enable_b	: in std_logic;
-	Write_en_a	: in std_logic_vector(0 downto 0); 
-	Address_a	: in std_logic_vector(15 downto 0);
-	Address_b	: in std_logic_vector(15 downto 0);
+	Write_en_a	: in std_logic_vector(0 downto 0); -- 1 for bottom bits, 2 for upper, 3 for all
+	Address_a	: in std_logic_vector(12 downto 0); --2^13 addresses in 1024 byte ram
+	Address_b	: in std_logic_vector(12 downto 0);
 	data_in_a	: in std_logic_vector(15 downto 0); -- b doesnt do write operations
 	Data_out_a: out std_logic_vector(15 downto 0);
 	Data_out_b: out std_logic_vector(15 downto 0)
@@ -28,9 +28,9 @@ begin
    generic map (
  
      -- Common module generics
-     MEMORY_SIZE             => 8192,           --positive integer 
+     MEMORY_SIZE             => 8192,           --positive integer
      CLOCKING_MODE           => "common_clock", --string; "common_clock", "independent_clock" 
-     MEMORY_INIT_FILE        => "format_a.mem",         --string; "none" or "<filename>.mem" 
+     MEMORY_INIT_FILE        => "formatb1.mem",         --string; "none" or "<filename>.mem" 
      MEMORY_INIT_PARAM       => "",             --string;
      USE_MEM_INIT            => 1,              --integer; 0,1
      MESSAGE_CONTROL         => 0,              --integer; 0,1
@@ -41,13 +41,13 @@ begin
      WRITE_DATA_WIDTH_A      => 16,             --positive integer
      READ_DATA_WIDTH_A       => 16,             --positive integer
      BYTE_WRITE_WIDTH_A      => 16,             --integer; 8, 9, or WRITE_DATA_WIDTH_A value
-     ADDR_WIDTH_A            => 16,              --positive integer
+     ADDR_WIDTH_A            => 13,              --positive integer
      READ_RESET_VALUE_A      => "0",            --string
      READ_LATENCY_A          => 1,              --non-negative integer
  
      -- Port B module generics
      READ_DATA_WIDTH_B       => 16,             --positive integer
-     ADDR_WIDTH_B            => 16,              --positive integer
+     ADDR_WIDTH_B            => 13,              --positive integer
      READ_RESET_VALUE_B      => "0",            --string
      READ_LATENCY_B          => 1               --non-negative integer
    )

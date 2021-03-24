@@ -97,7 +97,7 @@ begin
         O_FLAG => mul_v
     );
 
-    process(rst, alu_mode, in1, in2, out_buf, v_buf, 
+    process(rst, alu_mode, in1, in2, out_buf, v_buf, in1_wov, in2_wov,
             add_sub_b, add_sub_a, add_sub_ci, add_sub_out, add_sub_v, 
             BS_16_D_IN, BS_16_SHIFT, BS_16_LEFT, BS_16_D_OUT,
             mul_m, mul_r, mul_o, mul_v)
@@ -121,8 +121,7 @@ begin
 
         -- do not zero output signals from components!
 
-        v_flag       <= v_buf;
-        result       <= out_buf;
+        result       <= v_buf & out_buf;
     else 
         in1_wov <= in1(15 downto 0);
         in2_wov <= in2(15 downto 0);

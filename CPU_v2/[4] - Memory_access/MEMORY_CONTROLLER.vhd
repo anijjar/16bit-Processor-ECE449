@@ -14,12 +14,12 @@ ENTITY MEMORY_CONTROLLER IS
 	  in_ra : IN STD_LOGIC_VECTOR(2 downto 0); -- address of dest register
 	  in_regwb : IN STD_LOGIC; -- forward to register
 	  in_memwb : IN STD_LOGIC; -- write to memory
-	  
+	  in_usr_flag : IN STD_LOGIC;
 	  --memwb latch
-	  out_reg_wb : out STD_LOGIC; -- 1 for regiseter, 0 for system out
+	  out_reg_wb : out STD_LOGIC; -- 1 for regiseter
 	  out_ar : out std_logic_vector(16 downto 0);
 	  out_ra : out std_logic_vector(2 downto 0);
-	  
+	  out_usr_flag : out STD_LOGIC;
 	  --add pins for port a of ram
 	  out_RAM_rst_a : out STD_LOGIC;
 	  out_RAM_en_a : out STD_LOGIC;
@@ -41,12 +41,14 @@ BEGIN
 	 out_reg_wb <= '0';
 	 out_ar <= "00000000000000000";
 	 out_ra <= "000";
+	 out_usr_flag <= '0';
    else
       -- forward regester info and writeback signal
       out_ar <= in_ar; --data
       out_ra <= in_ra; -- address
       out_reg_wb <= in_regwb; --enable wb
-        -- ignore this for now
+      out_usr_flag <= in_usr_flag;
+        -- ignore this for now (L instructions)
        if(in_memwb = '1') then
           out_RAM_rst_a <= '0'; 
           out_RAM_en_a <= '0';

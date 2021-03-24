@@ -31,7 +31,7 @@ begin
         alumode <= "000";
         regwb   <= '0';
         memwb   <= '0';
-        rdst    <= ra;
+        rdst    <= "000";
         r1a     <= "000";
         r2a     <= "000";
         r2den   <= '0';
@@ -82,8 +82,8 @@ begin
                 alumode <= "000";
                 format  <= "011"; 
                 regwb <= '0';
-                memwb <= '1';
-                usr_flag <= '0'; 
+                memwb <= '0';
+                usr_flag <= '1'; 
 
             -- IN
             when "0100001" => 
@@ -150,6 +150,7 @@ begin
 
             when others =>
                 -- this is where the other formats will be tested first
+
         end case;
         
     end if;

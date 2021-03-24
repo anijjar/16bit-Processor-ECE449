@@ -22,7 +22,9 @@ ENTITY DECODE_STAGE IS
       out_memwb   : out std_logic;
       out_regwb   : out std_logic;
       out_usr_flag : out std_logic;
-      out_rdst    : out std_logic_vector( 2 downto 0)
+      out_rdst    : out std_logic_vector( 2 downto 0);
+      out_rb      : out  std_logic_vector( 2 downto 0);
+      out_rc      : out  std_logic_vector( 2 downto 0)
       );        
 END DECODE_STAGE;
 
@@ -37,7 +39,7 @@ BEGIN
     (
         rst     => rst,
         opcode  => in_opcode,
-        alumode => in_alumode,
+        alumode => out_alumode,
         ra      => in_ra,
         rb      => in_rb,
         rc      => in_rc,
@@ -46,13 +48,15 @@ BEGIN
         r2a     => out_RF2a,
         altd2   => altr2d,
         r2den   => altr2sel,
-        regwb   => regwb,
-        memwb   => memwb,
-        usr_flag => usr_flag
+        regwb   => out_regwb,
+        memwb   => out_memwb,
+        usr_flag => out_usr_flag
     );
-
+    out_rb <= in_rb;
+    out_rc <= in_rc;
+    
     -- S=0 selects RF2d, S=1 selects altr2d
-    input <= altr2d(16) & in_RF2d(16) 
+       input <= altr2d(16) & in_RF2d(16) 
          & altr2d(15) & in_RF2d(15) 
          & altr2d(14) & in_RF2d(14) 
          & altr2d(13) & in_RF2d(13) 
@@ -73,7 +77,7 @@ BEGIN
     mux_d : entity work.MUX_ARRAY GENERIC MAP (num => 17) PORT MAP ( 
         data_in  => input,
         S        => altr2sel, 
-        data_out => out_RD2
+        data_out => out_RD2 --alu input 2
     );
 
     out_RD1 <= in_RF1d;

@@ -23,8 +23,9 @@ ARCHITECTURE behavioural OF MUL IS
 BEGIN
    MUL_PROCESS : PROCESS (M, R)
       VARIABLE A, S, P : STD_LOGIC_VECTOR(n + n DOWNTO 0); -- 33 bits long
+      CONSTANT ENTRY_CONDITION : STD_LOGIC_VECTOR(n - 1 DOWNTO 0) := (OTHERS => '0');
    BEGIN
-      -- fill the most significant bits of A with M
+      -- fill the mopst significant bits of A with M
       A := (OTHERS => '0');
       S := (OTHERS => '0');
       P := (OTHERS => '0');
@@ -32,7 +33,6 @@ BEGIN
      A(n + n DOWNTO n + 1) := M;
      S(n + n DOWNTO n + 1) := (NOT M) + 1; -- 2'S COMP
      P(n DOWNTO 1) := R;
-
      FOR COUNT IN (n - 1) DOWNTO 0 LOOP
         IF P(1 DOWNTO 0) = "01" THEN
            P := P + A; -- ignore overflow
@@ -42,13 +42,11 @@ BEGIN
         -- arith shift P register by 1 bit
         P(n + n - 1 DOWNTO 0) := P(n + n DOWNTO 1);
      END LOOP;
-     
      RESULT <= P(n DOWNTO 1);-- drop the LSB from P
-     -- IF OUTPUT IS 1 AND THE INPUT WAS NOT 1, THEN OVERFLOW
-     IF P(n DOWNTO 1) = X"0001" and M /= X"0001" and R /= X"0001" then
+     if P(n DOWNTO 1) = X"0001" and M /= X"0001" and R /= X"0001" then
         O_FLAG <= '1';
-     ELSE
+     else
         O_FLAG <= '0';
-     END IF;
+     end if;
    END PROCESS;
 END behavioural;

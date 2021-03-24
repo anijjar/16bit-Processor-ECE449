@@ -3,41 +3,44 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
 
 ENTITY IDEX_LATCH IS
-      GENERIC (
-         N : INTEGER := 16
-      );
     PORT (
         rst : IN STD_LOGIC;
         clk : IN STD_LOGIC;
         -- any input signals
-        in_dr1      : in  std_logic_vector(N downto 0);
-        in_dr2      : in  std_logic_vector(N downto 0);
+        in_dr1      : in  std_logic_vector(16 downto 0);
+        in_dr2      : in  std_logic_vector(16 downto 0);
         in_alumode  : in  std_logic_vector(2  downto 0);
         in_regwb    : in  std_logic;
         in_memwb    : in  std_logic;
         in_usr_flag    : in  std_logic;
         in_ra       : in  std_logic_vector(2  downto 0);
+        in_rb       : in  std_logic_vector(2  downto 0);
+        in_rc       : in  std_logic_vector(2  downto 0);
         -- matching output signals
-        out_dr1     : out std_logic_vector(N downto 0);
-        out_dr2     : out std_logic_vector(N downto 0);
+        out_dr1     : out std_logic_vector(16 downto 0);
+        out_dr2     : out std_logic_vector(16 downto 0);
         out_alumode : out std_logic_vector(2  downto 0);
         out_regwb   : out std_logic;
         out_memwb   : out std_logic;
         out_usr_flag : out  std_logic;
-        out_ra      : out std_logic_vector(2  downto 0)
+        out_ra      : out std_logic_vector(2  downto 0);
+        out_rb      : out  std_logic_vector(2  downto 0);
+        out_rc      : out  std_logic_vector(2  downto 0)
         );        
 END IDEX_LATCH;
 
 ARCHITECTURE behavioural OF IDEX_LATCH IS
 
     -- matching internals signals
-    SIGNAL signal_dr1     : std_logic_vector(N downto 0) := (others => '0');
-    SIGNAL signal_dr2     : std_logic_vector(N downto 0) := (others => '0');
+    SIGNAL signal_dr1     : std_logic_vector(16 downto 0) := (others => '0');
+    SIGNAL signal_dr2     : std_logic_vector(16 downto 0) := (others => '0');
     SIGNAL signal_alumode : std_logic_vector(2  downto 0) := (others => '0');
     SIGNAL signal_regwb   : std_logic := '0';
     SIGNAL signal_memwb   : std_logic := '0';
     SIGNAL signal_usr_flag : std_logic := '0';
     SIGNAL signal_ra      : std_logic_vector(2  downto 0) := "000";
+    SIGNAL signal_rb      : std_logic_vector(2  downto 0) := "000";
+    SIGNAL signal_rc      : std_logic_vector(2  downto 0) := "000";
     BEGIN
     --write operation 
     PROCESS(clk)
@@ -51,6 +54,8 @@ ARCHITECTURE behavioural OF IDEX_LATCH IS
                 signal_regwb   <= '0';
                 signal_memwb   <= '0';
                 signal_ra      <= "000";
+                signal_rb      <= "000";
+                signal_rc      <= "000";
                 signal_usr_flag <= '0';
             else
                 -- on raising edge, input data and store
@@ -60,6 +65,8 @@ ARCHITECTURE behavioural OF IDEX_LATCH IS
                 signal_regwb   <= in_regwb;
                 signal_memwb   <= in_memwb;
                 signal_ra      <= in_ra;
+                signal_rb      <= in_rb;
+                signal_rc      <= in_rc;
                 signal_usr_flag <= in_usr_flag;
                 END if;
         END if;
@@ -71,6 +78,8 @@ ARCHITECTURE behavioural OF IDEX_LATCH IS
     out_regwb   <= signal_regwb;
     out_memwb   <= signal_memwb;
     out_ra      <= signal_ra;
+    out_rb      <= signal_rb;
+    out_rc      <= signal_rc;
     out_usr_flag <= signal_usr_flag;
 
 END behavioural;
