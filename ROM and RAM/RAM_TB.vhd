@@ -19,7 +19,19 @@ ARCHITECTURE Behavioral OF RAM_TB IS
    SIGNAL DOUTB : STD_LOGIC_VECTOR(15 DOWNTO 0);
 
 BEGIN
-   RAM : ENTITY work.RAM PORT MAP(Clock => CLK, Reset_a => RSTA, Reset_b => RSTB, Enable_a => ENA, Enable_b => ENB, Write_en_a => WENA, Adress_a => ADDA, Address_b => ADDB, data_in_a => DINA, Data_out_a => DOUTA, Data_out_b => DOUTB);
+   RAM_tb : ENTITY work.RAM PORT MAP(
+   Clock => CLK, 
+   Reset_a => RSTA, 
+   Reset_b => RSTB, 
+   Enable_a => ENA, 
+   Enable_b => ENB, 
+   Write_en_a => WENA, 
+   Address_a => ADDA,
+   Address_b => ADDB, 
+   data_in_a => DINA, 
+   Data_out_a => DOUTA,
+   Data_out_b => DOUTB
+  );
 
    clock : PROCESS
    BEGIN
