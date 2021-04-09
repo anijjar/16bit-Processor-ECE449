@@ -46,7 +46,7 @@ ARCHITECTURE level_0 OF System IS
 SIGNAL display  : std_logic_vector(N-1 downto 0);
 BEGIN
     input <= in_port & "00000";
-    --ack_signal <= btnL ;
+    ack_signal <= btnL ;
     
    RAM_0 : ENTITY work.RAM PORT MAP(
 		Clock      => clock, 
