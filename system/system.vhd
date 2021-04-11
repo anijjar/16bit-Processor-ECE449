@@ -18,7 +18,7 @@ ENTITY System IS
        digit_select: out std_logic_vector( 3 downto 0 );
        clock : in std_logic;
        display_clock: in std_logic;
-       ack_signal: out std_logic;
+       ack_signal: out std_logic; -- to output(0);
        in_port : in std_logic_vector(15 downto 5)
    );        
 END System;
@@ -42,12 +42,12 @@ ARCHITECTURE level_0 OF System IS
    SIGNAL CPU_rom_rd    : std_logic;
    signal input :  std_logic_vector(15 downto 0);
    
-   signal in_led : std_logic_vector(15 downto 0);
+   signal output : std_logic_vector(15 downto 0);
 SIGNAL display  : std_logic_vector(N-1 downto 0);
 BEGIN
     input <= in_port & "00000";
-    ack_signal <= btnL ;
-    
+    ack_signal <= output(0);
+
    RAM_0 : ENTITY work.RAM PORT MAP(
 		Clock      => clock, 
 		Reset_a    => CPU_ram_rsta, 
@@ -91,7 +91,7 @@ BEGIN
 		out_rom_rst	   => CPU_rom_rst,
 		out_rom_rd	   => CPU_rom_rd,
 		usr_input  => input,          
-		usr_output => in_led,
+		usr_output => output,
 		btn1 => btnL,
 		btn2 => btnR,
 		btn3 => btnC,

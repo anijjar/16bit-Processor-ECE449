@@ -34,12 +34,12 @@ entity DECODE_CONTROLLER is
         r2den    : out std_logic;
         -- informs WRIEBACK stage if register writeback is required
         -- 0 is no, 1 is yes
-        regwb    : out std_logic;
+        --regwb    : out std_logic;
         -- informs MEMORY stage if memory writeback is required
         -- 0 is no, 1 is yes
-        memwb    : out std_logic;
+        --memwb    : out std_logic;
         -- Memory Read-back: 0 for no, 1 for yes
-        memrd    : out std_logic;
+        --memrd    : out std_logic;
         --
         out_m1 : out std_logic;
         -- tells the CPU that there's user input
@@ -79,9 +79,6 @@ begin
     begin
     if (rst = '1') then
         alumode  <= "000";
-        regwb    <= '0';
-        memwb    <= '0';
-        memrd    <= '0';
         rdst     <= "000";
         r1a      <= "000";
         r2a      <= "000";
@@ -99,9 +96,6 @@ begin
         case opcode(6 downto 0) is
             when "0000000" => 
                 alumode  <= "000";
-                regwb    <= '0';
-                memwb    <= '0'; 
-                memrd    <= '0';
                 rdst     <= "000";
                 r1a      <= "000";
                 r2a      <= "000";
@@ -119,9 +113,6 @@ begin
             -- ADD
             when "0000001" => 
                 alumode <= "001";
-                regwb    <= '1';
-                memwb    <= '0'; 
-                memrd    <= '0';
                 rdst     <= data(8 downto 6);
                 r1a      <= data(5 downto 3);
                 r2a      <= data(2 downto 0);
@@ -139,9 +130,6 @@ begin
             -- SUB
             when "0000010" => 
                 alumode <= "010";
-                regwb    <= '1';
-                memwb    <= '0'; 
-                memrd    <= '0';
                 rdst     <= data(8 downto 6);
                 r1a      <= data(5 downto 3);
                 r2a      <= data(2 downto 0);
@@ -158,10 +146,7 @@ begin
 
             -- MUL
             when "0000011" => 
-                alumode <= "011";  
-                regwb    <= '1';
-                memwb    <= '0'; 
-                memrd    <= '0';
+                alumode <= "011";
                 rdst     <= data(8 downto 6);
                 r1a      <= data(5 downto 3);
                 r2a      <= data(2 downto 0);
@@ -179,9 +164,6 @@ begin
             -- NAND
             when "0000100" => 
                 alumode <= "100";
-                regwb    <= '1';
-                memwb    <= '0'; 
-                memrd    <= '0';
                 rdst     <= data(8 downto 6);
                 r1a      <= data(5 downto 3);
                 r2a      <= data(2 downto 0);
@@ -199,9 +181,6 @@ begin
             -- SHL
             when "0000101" => 
                 alumode <= "101";
-                regwb    <= '1';
-                memwb    <= '0';
-                memrd    <= '0';
                 rdst     <= data(8 downto 6);
                 r1a      <= data(8 downto 6);
                 r2a      <= "000";
@@ -215,13 +194,10 @@ begin
                 passthru_flag <= '0'; 
                 passthru_data <= (others => '0');
                 out_m1 <= '0';
-
+                
             -- SHR
             when "0000110" => 
-                alumode <= "110"; 
-                regwb    <= '1';
-                memwb    <= '0';
-                memrd    <= '0';
+                alumode <= "110";
                 rdst     <= data(8 downto 6);
                 r1a      <= data(8 downto 6);
                 r2a      <= "000";
@@ -239,9 +215,6 @@ begin
             -- TEST
             when "0000111" => 
                 alumode <= "111";
-                regwb    <= '0';
-                memwb    <= '0';
-                memrd    <= '0';
                 rdst     <= data(8 downto 6);
                 r1a      <= data(8 downto 6);
                 r2a      <= "000"; 
@@ -258,9 +231,6 @@ begin
             -- OUT
             when "0100000" => 
                 alumode <= "000";
-                regwb <= '0';
-                memwb <= '0';
-                memrd    <= '0';
                 usr_flag <= '1'; 
                 rdst     <= data(8 downto 6);
                 r1a      <= data(8 downto 6);
@@ -279,9 +249,6 @@ begin
             when "0100001" => 
                 alumode <= "000";
                 usr_flag <= '1';
-                regwb <= '1';
-                memwb <= '0';
-                memrd    <= '0'; 
                 rdst     <= data(8 downto 6);
                 r1a      <= data(8 downto 6);
                 r2a      <= "000"; 
@@ -301,9 +268,6 @@ begin
                 ifBr     <= '0';
                 ifReturn <= '0';
                 alumode  <= "000";
-                regwb    <= '0';
-                memwb    <= '0';
-                memrd    <= '0';
                 rdst     <= "000";
                 r1a      <= "000";
                 r2a      <= "000";
@@ -321,9 +285,6 @@ begin
                 ifBr     <= '0';
                 ifReturn <= '0';
                 alumode  <= "000";
-                regwb    <= '0';
-                memwb    <= '0';
-                memrd    <= '0';
                 rdst     <= "000";
                 r1a      <= "000";
                 r2a      <= "000";
@@ -341,9 +302,6 @@ begin
                 ifBr     <= '0';
                 ifReturn <= '0';
                 alumode  <= "000";
-                regwb    <= '0';
-                memwb    <= '0';
-                memrd    <= '0';
                 rdst     <= "000";
                 r1a      <= "000";
                 r2a      <= "000";
@@ -361,9 +319,6 @@ begin
                 ifBr     <= '0';
                 ifReturn <= '0';
                 alumode  <= "000";
-                regwb    <= '0';
-                memwb    <= '0';
-                memrd    <= '0';
                 rdst     <= "000";
                 r1a      <= "000";
                 r2a      <= "000";
@@ -379,7 +334,6 @@ begin
             -- BR doesn't have any forwarding hardware, but possibly shuold
             when "1000011" =>
                 brch_tkn <= '1';
-                regwb    <= '0';
                 rdst     <= "000";
                 fwd_flag <= "00"; 
                 passthru_flag <= '0'; 
@@ -387,8 +341,6 @@ begin
                 ifBr     <= '1';
                 ifReturn <= '0';
                 alumode  <= "000";
-                memwb    <= '0';
-                memrd    <= '0';
                 r1a      <= "000";
                 r2a      <= data(8 downto 6);
                 r2den    <= '1';
@@ -399,7 +351,6 @@ begin
             -- BR.N
             when "1000100" =>
                 brch_tkn <= flags(1);
-                regwb    <= '0';
                 rdst     <= "000";
                 fwd_flag <= "00"; 
                 passthru_flag <= '0'; 
@@ -407,8 +358,6 @@ begin
                 ifBr     <= '1';
                 ifReturn <= '0';
                 alumode  <= "000";
-                memwb    <= '0';
-                memrd    <= '0';
                 r1a      <= "000";
                 r2a      <= data(8 downto 6);
                 r2den    <= '1';
@@ -419,7 +368,6 @@ begin
             -- BR.Z
             when "1000101" =>
                 brch_tkn <= flags(2);
-                regwb    <= '0';
                 rdst     <= "000";
                 fwd_flag <= "00"; 
                 passthru_flag <= '0'; 
@@ -427,8 +375,6 @@ begin
                 ifBr     <= '1';
                 ifReturn <= '0';
                 alumode  <= "000";
-                memwb    <= '0';
-                memrd    <= '0';
                 r1a      <= "000";
                 r2a      <= data(8 downto 6);
                 r2den    <= '1';
@@ -439,7 +385,6 @@ begin
             -- BR.V
             when "1001001" =>
                 brch_tkn <= flags(0);
-                regwb    <= '0';
                 rdst     <= "000";
                 fwd_flag <= "00"; 
                 passthru_flag <= '0'; 
@@ -447,8 +392,6 @@ begin
                 ifBr     <= '1';
                 ifReturn <= '0';
                 alumode  <= "000";
-                memwb    <= '0';
-                memrd    <= '0';
                 r1a      <= "000";
                 r2a      <= data(8 downto 6);
                 r2den    <= '1';
@@ -459,7 +402,6 @@ begin
             -- BR.SUB
             when "1000110" =>
                 brch_tkn <= '1';
-                regwb    <= '1';
                 rdst     <= "111";
                 fwd_flag <= "10"; 
                 passthru_flag <= '1'; 
@@ -467,8 +409,6 @@ begin
                 ifBr     <= '1';
                 ifReturn <= '0';
                 alumode  <= "000";
-                memwb    <= '0';
-                memrd    <= '0';
                 r1a      <= "000";
                 r2a      <= data(8 downto 6);
                 r2den    <= '1';
@@ -480,9 +420,6 @@ begin
             -- no forwarding hardware
             when "1000111" =>
                 alumode  <= "000";
-                regwb    <= '0';
-                memwb    <= '0'; 
-                memrd    <= '0';
                 rdst     <= "000";
                 r1a      <= "111";
                 r2a      <= "000";
@@ -500,9 +437,6 @@ begin
             -- Load
             when "0010000" => 
                 alumode <= "000";
-                regwb   <= '1';
-                memwb   <= '0'; 
-                memrd   <= '1';
                 rdst    <= data(8 downto 6);
                 r1a     <= data(8 downto 6);
                 r2a     <= data(5 downto 3);
@@ -520,9 +454,6 @@ begin
             -- store
             when "0010001" => 
                 alumode <= "000"; 
-                regwb   <= '0';
-                memwb   <= '1'; 
-                memrd   <= '0';
                 rdst    <= data(8 downto 6);
                 r1a     <= data(8 downto 6);
                 r2a     <= data(5 downto 3);
@@ -539,10 +470,7 @@ begin
 
             -- loadimm
             when "0010010" => 
-                alumode  <= "000";
-                regwb    <= '1';
-                memwb    <= '0'; 
-                memrd    <= '0';  
+                alumode  <= "000"; 
                 rdst     <= "111"; -- changed from ra
                 r1a      <= "000"; -- cahnged from 111
                 r2a      <= "000";
@@ -560,9 +488,6 @@ begin
             -- MOV
             when "0010011" => 
                 alumode <= "000";
-                regwb   <= '1';
-                memwb   <= '0'; 
-                memrd   <= '0';
                 rdst    <= data(8 downto 6);
                 r1a     <= data(8 downto 6);
                 r2a     <= data(5 downto 3);
@@ -580,9 +505,6 @@ begin
             -- not an ALU operation
             when others    => 
                 alumode  <= "000";
-                regwb    <= '0';
-                memwb    <= '0'; 
-                memrd    <= '0';
                 rdst     <= "000";
                 r1a      <= "000";
                 r2a      <= "000";

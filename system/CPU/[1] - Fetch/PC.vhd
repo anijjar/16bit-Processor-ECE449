@@ -24,7 +24,7 @@ BEGIN
             -- no action required
          -- increment PC
          when "01" =>
-             pc <= std_logic_vector(unsigned(pc) + 1); -- 2 for btye addressable
+             pc <= std_logic_vector(unsigned(pc) + 1);
          -- Set PC to external value (for jumps)
          when "10" =>
             pc <= input;

@@ -11,16 +11,16 @@ signal in_rst_ld      :  std_logic;
 signal in_rst_ex      :  std_logic;
 signal in_ram_douta   :  std_logic_vector(15 downto 0);
 signal out_ram_dina   :  std_logic_vector(15 downto 0);
-signal out_ram_addra  :  std_logic_vector(12 downto 0);
+signal out_ram_addra  :  std_logic_vector(9 downto 0);
 signal out_ram_wea    :  std_logic_vector(0 downto 0);
 signal out_ram_rsta   :  std_logic;
 signal out_ram_ena    :  std_logic;
 signal in_ram_doutb   :  std_logic_vector(15 downto 0);
 signal out_ram_enb    :  std_logic;
-signal out_ram_addrb  :  std_logic_vector(12 downto 0);
+signal out_ram_addrb  :  std_logic_vector(9 downto 0);
 signal out_ram_rstb   :  std_logic;
 signal in_rom_data    :  std_logic_vector(15 downto 0);
-signal out_rom_adr    :  std_logic_vector(15 downto 0);
+signal out_rom_adr    :  std_logic_vector(9 downto 0);
 signal out_rom_rd_en  :  std_logic;
 signal out_rom_rst    :  std_logic;
 signal out_rom_rd     :  std_logic;
@@ -75,9 +75,9 @@ ROM_tb : ENTITY work.ROM PORT MAP(
    clock : PROCESS
    BEGIN
       CLK <= '1';
-      WAIT FOR 10 us;
+      WAIT FOR 100 us;
       CLK <= '0';
-      WAIT FOR 10 us;
+      WAIT FOR 100 us;
    END PROCESS;
    
 

@@ -24,9 +24,9 @@ sys: ENTITY work.System PORT map (
    clock : PROCESS
    BEGIN
       CLK <= '1';
-      WAIT FOR 10 us;
+      WAIT FOR 100 us;
       CLK <= '0';
-      WAIT FOR 10 us;
+      WAIT FOR 100 us;
    END PROCESS;
    
    SYSTEM_TESTS : PROCESS
