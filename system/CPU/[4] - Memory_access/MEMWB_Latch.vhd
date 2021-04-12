@@ -11,7 +11,7 @@ ENTITY MEMWB_LATCH IS
       --   in_reg_wb    : IN  STD_LOGIC;
       in_ar : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
       in_ra : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-      --   in_rb        : in  std_logic_vector( 2 downto 0);
+      in_rc        : in  std_logic_vector( 2 downto 0);
       --   in_usr_flag  : IN  STD_LOGIC;
       --   in_fwd_flag  : in  std_logic_vector( 1 downto 0);
       --   in_ra_data   : IN  STD_LOGIC_VECTOR(16 DOWNTO 0); 
@@ -22,9 +22,9 @@ ENTITY MEMWB_LATCH IS
       -- matching output signals
       out_m1 : OUT STD_LOGIC;
       -- out_reg_wb : OUT STD_LOGIC;
-      -- out_ar : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
+      out_ar : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
       out_ra : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-      -- out_rb : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+      out_rc : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
       -- out_usr_flag : OUT STD_LOGIC;
       -- out_fwd_flag : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
       -- out_ra_data : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
@@ -40,7 +40,7 @@ ARCHITECTURE level_2 OF MEMWB_LATCH IS
    -- SIGNAL signal_reg_wb : STD_LOGIC := '0';
    SIGNAL signal_ar : STD_LOGIC_VECTOR(16 DOWNTO 0) := (OTHERS => '0');
    SIGNAL signal_ra : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
-   -- SIGNAL signal_rb : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
+   SIGNAL signal_rc : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
    -- SIGNAL signal_usr_flag : STD_LOGIC := '0';
    -- SIGNAL signal_ra_data : STD_LOGIC_VECTOR(16 DOWNTO 0) := (OTHERS => '0');   
    SIGNAL signal_output_data : STD_LOGIC_VECTOR(16 DOWNTO 0) := (OTHERS => '0');
@@ -60,7 +60,7 @@ BEGIN
             -- signal_reg_wb <= '0';
             signal_ar <= (OTHERS => '0');
             signal_ra <= "000";
-            -- signal_rb <= "000";
+            signal_rc <= "000";
             -- signal_usr_flag <= '0';
             -- signal_ra_data <= (OTHERS => '0');
             signal_output_data <= (OTHERS => '0');
@@ -74,7 +74,7 @@ BEGIN
             -- signal_reg_wb <= in_reg_wb;
             signal_ar <= in_ar;
             signal_ra <= in_ra;
-            -- signal_rb <= in_rb;
+            signal_rc <= in_rc;
             -- signal_usr_flag <= in_usr_flag;
             -- signal_ra_data <= in_ra_data;
             signal_output_data <= in_output_data;
@@ -90,7 +90,7 @@ BEGIN
    -- out_reg_wb <= signal_reg_wb;
    out_ar <= signal_ar;
    out_ra <= signal_ra;
-   -- out_rb <= signal_rb;
+   out_rc <= signal_rc;
    -- out_usr_flag <= signal_usr_flag;
    -- out_ra_data <= signal_ra_data;
    out_output_data <= signal_output_data;

@@ -9,7 +9,7 @@ ENTITY FETCH_CONTROLLER IS
       ram_address_length : INTEGER := 10
    );
    PORT (
-      clk : IN STD_LOGIC; 
+      clk : IN STD_LOGIC;
       rst : IN STD_LOGIC;
       rst_ex : IN STD_LOGIC;
       rst_ld : IN STD_LOGIC;
@@ -35,7 +35,7 @@ END FETCH_CONTROLLER;
 ARCHITECTURE level_2 OF FETCH_CONTROLLER IS
    SIGNAL signal_out_pc : STD_LOGIC_VECTOR(N - 1 DOWNTO 0) := (OTHERS => '0');
 BEGIN
-   PROCESS (clk, rst, rst_ex, rst_ld, in_ram_data, in_rom_data, in_pc)
+   PROCESS (clk, rst, rst_ex, rst_ld, in_ram_data, in_rom_data, in_pc, signal_out_pc)
       VARIABLE prog_en : INTEGER := 0;
    BEGIN
       IF (rst_ld = '1') THEN --on rst_load
@@ -61,7 +61,7 @@ BEGIN
       ELSE -- everytime else
          out_pc_rst <= '0';
          IF (prog_en = 2) THEN
-            IF (in_pc < X"03FF") THEN
+            IF (in_pc < X"0400") THEN
                out_rom_rd_en <= '1';
                out_rom_rst <= '0';
                out_rom_adr <= '0' & in_pc(ram_address_length - 1 DOWNTO 1);

@@ -3,190 +3,201 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
 
 ENTITY DECODE_STAGE IS
-   GENERIC (
-      N : INTEGER := 16
-   );
-   PORT (
-      rst          : in  std_logic;
-      in_opcode    : in  std_logic_vector(6 downto 0);
-      in_data      : in  std_logic_vector(8 downto 0);
-      in_RF1d      : in  std_logic_vector(N downto 0);
-      in_RF2d      : in  std_logic_vector(N downto 0);
-      in_flags     : in  std_logic_vector(2 downto 0);
-      in_pc        : in  std_logic_vector(N-1 downto 0);
-      in_pc2       : in  std_logic_vector(N-1 downto 0);
-      in_exmem_opcode : in std_logic_vector( 6 downto 0);
-      in_exmem_forwarding_address : in  std_logic_vector( 2 downto 0);
-      in_exmem_forwarded_data : in std_logic_vector(16 downto 0);
-      in_exmem_forwarding_fwd_flag : in std_logic_vector(1 downto 0);
-      out_RF1a     : out std_logic_vector(2 downto 0);
-      out_RF2a     : out std_logic_vector(2 downto 0);
-      out_RD1      : out std_logic_vector(N downto 0);
-      out_RD2      : out std_logic_vector(N downto 0);
-      out_alumode  : out std_logic_vector(2 downto 0);
-      out_memwb    : out std_logic;
-      out_memrd    : out std_logic;
-      out_regwb    : out std_logic;
-      out_usr_flag : out std_logic;
-      out_rdst     : out std_logic_vector(2 downto 0);
-      out_brch_tkn : out std_logic;
-      out_brch_adr : out std_logic_vector(N-1 downto 0);
-      out_passthru : out std_logic_vector(N downto 0);
-      out_fwd_flag : out std_logic_vector(1 downto 0);
-      out_passthru_flag : out std_logic;
-      out_m1       : out std_logic
-    );        
+    GENERIC (
+        N : INTEGER := 16
+    );
+    PORT (
+        rst : IN STD_LOGIC;
+        in_opcode : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
+        in_data : IN STD_LOGIC_VECTOR(8 DOWNTO 0);
+        in_RF1d : IN STD_LOGIC_VECTOR(N DOWNTO 0);
+        in_RF2d : IN STD_LOGIC_VECTOR(N DOWNTO 0);
+        in_flags : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        in_pc : IN STD_LOGIC_VECTOR(N - 1 DOWNTO 0);
+        in_pc2 : IN STD_LOGIC_VECTOR(N - 1 DOWNTO 0);
+
+        in_ex_opcode : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
+        in_ex_forwarding_address : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        in_ex_forwarded_data : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
+        in_ex_m1 : in std_logic;
+        in_exmem_opcode : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
+        in_exmem_forwarding_address : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        in_exmem_forwarded_data : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
+        in_exmem_m1 : in std_logic;
+        in_wb_opcode : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
+        in_wb_forwarding_address : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        in_wb_forwarded_data : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
+        in_wb_m1 : in std_logic;
+
+        out_RF1a : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+        out_RF2a : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+        out_RD1 : OUT STD_LOGIC_VECTOR(N DOWNTO 0);
+        out_RD2 : OUT STD_LOGIC_VECTOR(N DOWNTO 0);
+        out_alumode : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+        out_ra : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+        out_brch_tkn : OUT STD_LOGIC;
+        out_brch_adr : OUT STD_LOGIC_VECTOR(N - 1 DOWNTO 0);
+        out_m1 : OUT STD_LOGIC
+    );
 END DECODE_STAGE;
 
 ARCHITECTURE behavioural OF DECODE_STAGE IS
-    signal altr2d       : std_logic_vector(  N downto 0) := (others =>'0');
-    signal altr2sel     : std_logic := '0';
-    signal pc_17        : std_logic_vector(  N downto 0) := (others => '0');
-    signal inter_RD2    : std_logic_vector(  N downto 0) := (others => '0');
-    signal inter_RD2_16 : std_logic_vector(N-1 downto 0) := (others => '0');
-    signal adder_v      : std_logic := '0';
-    signal calc_adr_16  : std_logic_vector(N-1 downto 0) := (others => '0');
-    signal calc_adr     : std_logic_vector(  N downto 0) := (others => '0');
-    signal addend       : std_logic_vector(  N downto 0) := (others => '0');
-    signal addend_16    : std_logic_vector(N-1 downto 0) := (others => '0');
-    signal ifBr         : std_logic := '0';
-    signal ifReturn     : std_logic := '0';
-    signal brch_adr_17  : std_logic_vector(  N downto 0) := (others => '0');
-    signal r1_adr       : std_logic_vector(  2 downto 0) := (others => '0');
-    signal r2_adr       : std_logic_vector(  2 downto 0) := (others => '0');
-    signal pc2_17       : std_logic_vector(  N downto 0):= (others => '0');
-    signal sig_RD1      : std_logic_vector(  N downto 0):= (others => '0');
-    signal sig_RD2      : std_logic_vector(  N downto 0):= (others => '0');
-    
-    signal forward_output_RD1: std_logic_vector(  N downto 0):= (others => '0');
-    signal forward_output_RD2: std_logic_vector(  N downto 0):= (others => '0');
-    signal sel_RD1 : std_logic:= '0';
-    signal sel_RD2 : std_logic:= '0';
+    SIGNAL altr2d : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    SIGNAL altr2sel : STD_LOGIC := '0';
+    SIGNAL pc_17 : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    SIGNAL inter_RD2 : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    SIGNAL inter_RD2_16 : STD_LOGIC_VECTOR(N - 1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL adder_v : STD_LOGIC := '0';
+    SIGNAL calc_adr_16 : STD_LOGIC_VECTOR(N - 1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL calc_adr : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    SIGNAL addend : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    SIGNAL addend_16 : STD_LOGIC_VECTOR(N - 1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ifBr : STD_LOGIC := '0';
+    SIGNAL ifReturn : STD_LOGIC := '0';
+    SIGNAL brch_adr_17 : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    SIGNAL r1_adr : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL r2_adr : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL pc2_17 : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    -- SIGNAL sig_RD1 : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    -- SIGNAL sig_RD2 : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
 
+    SIGNAL fwd_RF1d : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    --SIGNAL fwd_RF2d : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    SIGNAL sel_RD1 : STD_LOGIC := '0';
+    SIGNAL sel_RD2 : STD_LOGIC := '0';
+    SIGNAL if_brsub : STD_LOGIC := '0';
+    SIGNAL disp : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd2_out_final : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
 BEGIN
     -- async signal converstions
-    pc_17  <= '0'&in_pc;
-    pc2_17 <= '0'&in_pc2;
-    out_RD2 <= inter_RD2;
-    calc_adr <= adder_v&calc_adr_16;
-    inter_RD2_16 <= inter_RD2(N-1 downto 0);
-    addend_16 <= addend(N-1 downto 0);
-    sig_RD1 <= in_RF1d;
-    sig_RD2 <= in_RF2d;
+    pc_17 <= '0' & in_pc;
+    pc2_17 <= '0' & in_pc2;
+    out_RD2 <= rd2_out_final;--inter_RD2;
+    calc_adr <= adder_v & calc_adr_16;
+    inter_RD2_16 <= inter_RD2(N - 1 DOWNTO 0);
+    addend_16 <= addend(N - 1 DOWNTO 0);--addend(N - 2 DOWNTO 0)&'0'; --added 2x here by left shifting by 1. changed N-1 to N-2
+    -- sig_RD1 <= in_RF1d;
+    -- sig_RD2 <= in_RF2d;
     --out_RD1 <= sig_RD1;
-    out_RD1 <= forward_output_RD1;
-    --out_RD2 <= forward_output_RD2;
-    out_brch_adr <= brch_adr_17(N-1 downto 0);
+    out_RD1 <= in_RF1d;
+    --out_RD2 <= fwd_RF2d;
+    out_brch_adr <= brch_adr_17(N - 1 DOWNTO 0);
     out_RF1a <= r1_adr;
     out_RF2a <= r2_adr;
 
-    decode_controller_0 : entity work.DECODE_CONTROLLER port map 
-    (
-        rst      => rst,
-        opcode   => in_opcode,
-        alumode  => out_alumode,
-        data     => in_data,
-        flags    => in_flags,
-        rdst     => out_rdst,
-        r1a      => r1_adr,
-        r2a      => r2_adr,
-        altd2    => altr2d,
-        r2den    => altr2sel,
-        regwb    => out_regwb,
-        memwb    => out_memwb,
-        memrd    => out_memrd,
-        out_m1   => out_m1,
-        usr_flag => out_usr_flag,
+    decode_controller_0 : ENTITY work.DECODE_CONTROLLER PORT MAP (
+        rst => rst,
+        opcode => in_opcode,
+        alumode => out_alumode,
+        data => in_data,
+        flags => in_flags,
+        ra => out_ra,
+        r1a => r1_adr,
+        r2a => r2_adr,
+        alt2d => altr2d,
+        r2den => altr2sel,
+        out_m1 => out_m1,
         brch_tkn => out_brch_tkn,
-        ifBr     => ifBr,
+        ifBr => ifBr,
         ifReturn => ifReturn,
-        fwd_flag => out_fwd_flag,
-        pc2      => pc2_17,
-        passthru_data => out_passthru,
-        passthru_flag => out_passthru_flag
-    );
+        pc2 => pc2_17,
+        if_brsub => if_brsub,
+        disp => disp
+        );
 
     -- selects if data is taken from the reg or made from controller
-    mux_rd2 : entity work.MUX17_2x1 port map 
-    (
+    mux_rd2 : ENTITY work.MUX17_2x1 PORT MAP
+        (
         SEL => altr2sel,
-        A   => forward_output_RD2,
-        B   => altr2d,
-        C   => inter_RD2
-    );
-
+        A => in_RF2d,
+        B => altr2d,
+        C => inter_RD2
+        );
+    -- selects pc va
+    mux_brsub : ENTITY work.MUX17_2x1 PORT MAP
+        (
+        SEL => if_brsub,
+        A => inter_RD2, --normal op
+        B => disp, -- pc2
+        C => rd2_out_final
+        );
     -- calculates the new branch address, taken or not
-
-    branch_adder_0 : entity work.ADD_SUB_16 port map 
-    (
+    branch_adder_0 : ENTITY work.ADD_SUB_16 PORT MAP
+        (
         rst => rst,
-        a   => addend_16,
-        b   => inter_RD2_16,
-        f   => calc_adr_16,
-        ci  => '0',
-        v   => adder_v
-    );
+        a => addend_16,
+        b => inter_RD2_16,
+        f => calc_adr_16,
+        ci => '0',
+        v => adder_v
+        );
 
-    -- selects between disp and R[a] to be added to pc
-    mux_addend : entity work.MUX17_2x1 port map 
-    (
+    -- selects between PC and R[a] for the first input of the BRR or BR instruction
+    mux_addend : ENTITY work.MUX17_2x1 PORT MAP
+        (
         SEL => ifBr,
-        A   => pc_17,
-        B   => forward_output_RD2,
-        C   => addend
-    );
-    
-    -- selects the new pc value baseed on if it's a return call
-    mux_return : entity work.MUX17_2x1 port map 
-    (
+        A => pc_17,
+        B => fwd_RF1d, --in_RF2d, --fwd_RF2d,
+        C => addend
+        );
+
+    -- selects the new pc value based on if it's a return call
+    mux_return : ENTITY work.MUX17_2x1 PORT MAP
+        (
         SEL => ifReturn,
-        A   => calc_adr,
-        B   => forward_output_RD1,
-        C   => brch_adr_17
-    );   
-     
-    -- if r1_adr = in_exmem_forwarding_address? in_exmem_forwarded_data : sig_RD1
-    mux_forwarding_1 : entity work.MUX17_2x1 port map (
-        SEL => sel_RD1,
-        A => in_exmem_forwarded_data,
-        B => sig_RD1,
-        C => forward_output_RD1
-    );
-    
-    sel_RD1 <= '0' when ((r1_adr = in_exmem_forwarding_address)
-                         and ((in_exmem_opcode /= "0000000") 
-                              and (in_exmem_opcode /= "1000000") 
-                              and (in_exmem_opcode /= "1000001") 
-                              and (in_exmem_opcode /= "1000010") 
-                              and (in_exmem_opcode /= "1001000")
-                              and (in_exmem_opcode /= "1000011") -- br
-                              and (in_exmem_opcode /= "1000100") 
-                              and (in_exmem_opcode /= "1000101") 
-                              and (in_exmem_opcode /= "1001001")
-                              )
-                          ) 
-               else '1';
-  mux_forwarding_2 : entity work.MUX17_2x1 port map (
-       SEL => sel_RD2,
-       A => in_exmem_forwarded_data,
-       B => sig_RD2,
-       C => forward_output_RD2
-   );
-    sel_RD2 <= '0' when ((r2_adr = in_exmem_forwarding_address)
-                                    and ((in_exmem_opcode /= "0000000") 
-                                         and (in_exmem_opcode /= "1000000") 
-                                         and (in_exmem_opcode /= "1000001") 
-                                         and (in_exmem_opcode /= "1000010") 
-                                         and (in_exmem_opcode /= "1001000")
-                                         and (in_exmem_opcode /= "1000011") -- br
-                                         and (in_exmem_opcode /= "1000100") 
-                                         and (in_exmem_opcode /= "1000101") 
-                                         and (in_exmem_opcode /= "1001001")
-                                         )
-                                     ) 
-                          else '1';
---    in_exmem_opcode : in std_logic_vector( 6 downto 0);
---    in_exmem_forwarding_address : in  std_logic_vector( 2 downto 0);
---    in_exmem_forwarded_data : in std_logic_vector(16 downto 0);
---    in_exmem_forwarding_fwd_flag : in std_logic_vector(1 downto 0);
+        A => calc_adr,
+        B => fwd_RF1d,--in_RF1d, --fwd_RF1d, this input needs to be the latest r7 value
+        C => brch_adr_17
+        );
+
+    PROCESS (fwd_RF1d, in_RF1d, in_ex_forwarded_data, in_ex_forwarding_address, in_ex_opcode, in_exmem_opcode, in_exmem_forwarding_address, in_exmem_forwarded_data, in_wb_opcode, in_wb_forwarding_address, in_wb_forwarded_data, in_opcode, r1_adr, r2_adr)
+    BEGIN
+    -- for the BR instructions (changed from r2 to r1)
+        IF((in_opcode = "1000011") OR (in_opcode = "1000100") OR (in_opcode = "1000101") OR (in_opcode = "1001001") OR (in_opcode = "1000110")) then
+            if((in_ex_opcode /= "0010000" or in_ex_opcode /= "1000111") or 
+            (in_exmem_opcode /= "0010000" or in_exmem_opcode /= "1000111") or 
+            (in_wb_opcode /= "0010000" or in_wb_opcode /= "1000111")) then--dont do on load or return
+                if(r1_adr = in_ex_forwarding_address) then
+                    fwd_RF1d <= in_ex_forwarded_data;
+                elsif(r1_adr = in_exmem_forwarding_address) then
+                    fwd_RF1d <=  in_exmem_forwarded_data;
+                elsif(r1_adr = in_wb_forwarding_address) then
+                    fwd_RF1d <= in_wb_forwarded_data;
+                else
+                    fwd_RF1d <= in_RF1d;
+                end if;
+            else
+                fwd_RF1d <= in_RF1d;
+            end if;
+    -- for the RETURN instruction
+        elsif(in_opcode = "1000111") then
+            -- if both ex and mem stages are load immediate. get both data and concate together to be fed into the PC
+            -- dotn worry about case if there are two back to back upper/lowers. doesnt happen in project.
+            if((in_ex_opcode = "0010010") and (in_exmem_opcode = "0010010")) then
+                if(in_ex_m1 = '1') then
+                    fwd_RF1d <= '0'&in_ex_forwarded_data(7 downto 0) & in_exmem_forwarded_data(7 downto 0);
+                else
+                    fwd_RF1d <= '0'&in_exmem_forwarded_data(7 downto 0) & in_ex_forwarded_data(7 downto 0);                    
+                end if;
+            -- otherwise if any other instruction is writing to register 7, use that result.
+            elsif(in_ex_forwarding_address = "111") then
+                fwd_RF1d <= in_ex_forwarded_data;
+            elsif(in_exmem_forwarding_address = "111") then
+                fwd_RF1d <= in_exmem_forwarded_data;
+            elsif(in_wb_forwarding_address = "111") then 
+                fwd_RF1d <= in_wb_forwarded_data;
+            -- other otherwise, use register value
+            else 
+            fwd_RF1d <= in_RF1d; 
+            end if;
+        else
+            fwd_RF1d <= in_RF1d;
+        end if;
+    END PROCESS;
+    -- so the whole idea for forwarding is wrong. We were propagating a forwarded value when we should have been using it only the branching condition. we were also looking at the exmem stage only - rookie mistake. we need to look at each stage of the pipeline and see if the last 3 instructions were going to write a result into the target, r[a], register. 
+
+    -- we need the result forwarded from all three stages for br
+
+    -- for the return MUX, we need to check all three stages of the pipeline and either forward the latest r7 result, or reconstruct it from the loadimm instructions.
+
 END behavioural;

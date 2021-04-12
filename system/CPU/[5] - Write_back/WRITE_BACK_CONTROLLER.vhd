@@ -8,11 +8,9 @@ ENTITY WRITE_BACK_CONTROLLER IS
       rst : IN STD_LOGIC;
       in_m1 : IN STD_LOGIC;
       in_opcode : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
-      -- in_dr1 : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
-      -- in_dr2 : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
       in_ar : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
       in_ra : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-      -- in_ram_mem : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+      in_rc : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
       out_cpu : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
       out_ar : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
       out_ra : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -31,8 +29,8 @@ BEGIN
          out_ar <= (OTHERS => '0');
          out_ra_wen <= '0';
       ELSE
-         CASE in_opcode IS 
-            -- cannot use others case for A and L instructions because B instructions
+         CASE in_opcode IS
+               -- cannot use others case for A and L instructions because B instructions
             WHEN "0000001" => -- ADD
                out_cpu <= X"0000";
                out_ar <= in_ar;
@@ -84,7 +82,11 @@ BEGIN
                out_ra_wen <= '1';
             WHEN "0010011" => -- MOV
                out_cpu <= X"0000";
-               out_ar <= in_ar;
+               IF (in_rc = "111") THEN
+                  out_ar <= r7_temp;
+               ELSE
+                  out_ar <= in_ar;
+               END IF;
                out_ra <= in_ra;
                out_ra_wen <= '1';
             WHEN "0010000" => -- LOAD
@@ -92,6 +94,16 @@ BEGIN
                out_ar <= in_ar;
                out_ra <= in_ra;
                out_ra_wen <= '1';
+            WHEN "1000110" => -- BR.sub
+               out_cpu <= X"0000";
+               out_ar <= in_ar;
+               out_ra <= "111";
+               out_ra_wen <= '1';
+            WHEN "0010001" => -- store -- for the forwarding of the memory stage
+               out_cpu <= X"0000";
+               out_ar <= in_ar;
+               out_ra <= in_ra;
+               out_ra_wen <= '0'; --dont write
             WHEN OTHERS => -- NOP
                out_cpu <= X"0000";
                out_ra <= "000";
@@ -99,7 +111,15 @@ BEGIN
                out_ra_wen <= '0';
          END CASE;
          IF (in_ra = "111") THEN
-            r7_temp <= in_ar;
+            IF (in_opcode = "0010010") THEN -- if laodimm
+               IF (in_m1 = '1') THEN
+                  r7_temp(15 DOWNTO 8) <= in_ar(7 DOWNTO 0);
+               ELSE
+                  r7_temp(7 DOWNTO 0) <= in_ar(7 DOWNTO 0);
+               END IF;
+            ELSE
+               r7_temp <= in_ar;
+            END IF;
          END IF;
       END IF;
    END PROCESS Controller;

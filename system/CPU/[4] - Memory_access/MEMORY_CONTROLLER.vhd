@@ -15,7 +15,7 @@ ENTITY MEMORY_CONTROLLER IS
       in_ra : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
       in_dr1 : IN STD_LOGIC_VECTOR(N DOWNTO 0);
       in_ar : IN STD_LOGIC_VECTOR(N DOWNTO 0);
-      in_rb : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+      in_rc : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
       in_dr2 : IN STD_LOGIC_VECTOR(N DOWNTO 0);
       in_wb_opcode : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
       in_wb_forwarded_address : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -31,14 +31,14 @@ ENTITY MEMORY_CONTROLLER IS
       in_RAM_dout_a : IN STD_LOGIC_VECTOR(N - 1 DOWNTO 0);
       -- I/O logic
       -- when the load or store instruction is 0xFFF0 or 0xFFF2, then instead of memory, write to ports
-      display : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+      display : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
       dip_switches : IN STD_LOGIC_VECTOR(15 DOWNTO 0)
    );
 END MEMORY_CONTROLLER;
 
 ARCHITECTURE level_2 OF MEMORY_CONTROLLER IS
 BEGIN
-   PROCESS (rst, in_ra, in_ar, in_rb, in_wb_opcode, in_wb_forwarded_address, in_wb_forwarded_data, in_dr1, in_dr2, in_opcode, dip_switches)
+   PROCESS (rst, in_ra, in_ar, in_rc, in_wb_opcode, in_wb_forwarded_address, in_wb_forwarded_data, in_dr1, in_dr2, in_opcode, dip_switches)
    BEGIN
       IF (rst = '1') THEN
          out_RAM_rst_a <= '1';
@@ -55,7 +55,7 @@ BEGIN
                out_RAM_din_a <= X"0000";
                -- check if the input address has been modified in the last instruction
                IF (
-                  (in_rb = in_wb_forwarded_address) AND
+                  (in_rc = in_wb_forwarded_address) AND
                   (in_wb_opcode /= "0000000") AND --nop 
                   (in_wb_opcode /= "1000000") AND --brr
                   (in_wb_opcode /= "1000001") AND --brr.n
@@ -65,8 +65,7 @@ BEGIN
                   (in_wb_opcode /= "1000100") AND -- br.n
                   (in_wb_opcode /= "1000101") AND -- br.z
                   (in_wb_opcode /= "1001001") AND -- br.v
-                  (in_wb_opcode /= "1000110") AND --brr.sub
-                  (in_wb_opcode /= "1000111") AND --return
+                  (in_wb_opcode /= "1000111") --return
                   ) THEN
                   out_RAM_addy_a <= in_wb_forwarded_data(9 DOWNTO 0);
                ELSE
@@ -89,16 +88,17 @@ BEGIN
                   (in_wb_opcode /= "1000100") AND -- br.n
                   (in_wb_opcode /= "1000101") AND -- br.z
                   (in_wb_opcode /= "1001001") AND -- br.v
-                  (in_wb_opcode /= "1000110") AND --brr.sub
-                  (in_wb_opcode /= "1000111") AND --return
+                  (in_wb_opcode /= "1000111") --return
                   ) THEN
                   out_RAM_addy_a <= in_wb_forwarded_data(9 DOWNTO 0);
+                  output_data <= in_wb_forwarded_data;
                ELSE
                   out_RAM_addy_a <= in_dr1(9 DOWNTO 0);
+                  output_data <= in_dr1;
                END IF;
                -- check if the input data has been modified in the last instruction
                IF (
-                  (in_rb = in_wb_forwarded_address) AND
+                  (in_rc = in_wb_forwarded_address) AND
                   (in_wb_opcode /= "0000000") AND --nop 
                   (in_wb_opcode /= "1000000") AND --brr
                   (in_wb_opcode /= "1000001") AND --brr.n
@@ -108,14 +108,13 @@ BEGIN
                   (in_wb_opcode /= "1000100") AND -- br.n
                   (in_wb_opcode /= "1000101") AND -- br.z
                   (in_wb_opcode /= "1001001") AND -- br.v
-                  (in_wb_opcode /= "1000110") AND --brr.sub
-                  (in_wb_opcode /= "1000111") AND --return
+                  (in_wb_opcode /= "1000111") --return
                   ) THEN
-                  out_RAM_din_a <= in_wb_forwarded_data(9 DOWNTO 0);
+                  out_RAM_din_a <= in_wb_forwarded_data(15 downto 0);
                ELSE
-                  out_RAM_din_a <= in_dr2(9 DOWNTO 0);
+                  out_RAM_din_a <= in_dr2(15 downto 0);
                END IF;
-               output_data <= (OTHERS => '0');
+               --output_data <= (OTHERS => '0'); --we need to forward the store result
             WHEN OTHERS =>
                out_RAM_rst_a <= '1';
                out_RAM_en_a <= '0';

@@ -19,8 +19,9 @@ ENTITY EXMEM_LATCH IS
       --   in_ra_data : in std_logic_vector(16 downto 0); -- for the output instruction
       --   in_fwd_flag       : in  std_logic_vector(1 downto 0);
       in_dr1 : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
-      in_rb : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+      --in_rb : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
       in_dr2 : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
+      in_rc : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
       -- matching output signals
       out_opcode : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
       out_m1 : OUT STD_LOGIC;
@@ -33,7 +34,8 @@ ENTITY EXMEM_LATCH IS
       -- out_ra_data : OUT STD_LOGIC_VECTOR(16 DOWNTO 0); -- for the output instruction
       -- out_fwd_flag : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
       out_dr1 : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
-      out_rb : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+      --out_rb : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+            out_rc : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
       out_dr2 : OUT STD_LOGIC_VECTOR(16 DOWNTO 0)
    );
 END EXMEM_LATCH;
@@ -53,7 +55,8 @@ ARCHITECTURE behavioural OF EXMEM_LATCH IS
    -- SIGNAL signal_memrd : STD_LOGIC := '0';
    SIGNAL signal_dr1 : STD_LOGIC_VECTOR(16 DOWNTO 0) := (OTHERS => '0');
    SIGNAL signal_dr2 : STD_LOGIC_VECTOR(16 DOWNTO 0) := (OTHERS => '0');
-   SIGNAL signal_rb : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
+   --SIGNAL signal_rb : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
+      SIGNAL signal_rc : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
 BEGIN
    --write operation 
    PROCESS (clk)
@@ -74,7 +77,8 @@ BEGIN
             --signal_fwd_flag  <= (others => '0');
             signal_dr1 <= (OTHERS => '0');
             signal_dr2 <= (OTHERS => '0');
-            signal_rb <= (OTHERS => '0');
+            --signal_rb <= (OTHERS => '0');
+                        signal_rc <= (OTHERS => '0');
          ELSE
             -- on raising edge, input data and store
             signal_ar <= in_ar;
@@ -90,7 +94,8 @@ BEGIN
             --signal_fwd_flag  <= in_fwd_flag;
             signal_dr1 <= in_dr1;
             signal_dr2 <= in_dr2;
-            signal_rb <= in_rb;
+            --signal_rb <= in_rb;
+                        signal_rc <= in_rc;
          END IF;
       END IF;
    END PROCESS;
@@ -108,6 +113,7 @@ BEGIN
    --out_fwd_flag  <= signal_fwd_flag;
    out_dr1 <= signal_dr1;
    out_dr2 <= signal_dr2;
-   out_rb <= signal_rb;
+   --out_rb <= signal_rb;
+      out_rc <= signal_rc;
 
 END behavioural;
