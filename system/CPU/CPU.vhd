@@ -301,13 +301,13 @@ BEGIN
          rst <= '0';
       END IF;
       IF (btn1 = '1' AND btn2 = '0' AND btn3 = '0') THEN
-         display <= fs_pc;
+         display <= fs_pc; --pc
       END IF;
       IF (btn1 = '0' AND btn2 = '1' AND btn3 = '0') THEN
-         display <= ex_out_result(15 DOWNTO 0);
+         display <= ex_out_result(15 DOWNTO 0); --alu
       END IF;
       IF (btn1 = '0' AND btn2 = '0' AND btn3 = '1') THEN
-         display <= in_ram_douta;
+         display <= out_rom_adr; -- instruction
       END IF;
    END PROCESS FSM;
 END level_1;

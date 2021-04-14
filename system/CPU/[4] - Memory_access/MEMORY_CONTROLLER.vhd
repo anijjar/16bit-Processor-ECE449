@@ -49,80 +49,103 @@ BEGIN
       ELSE
          CASE in_opcode IS
             WHEN "0010000" => -- load
-               out_RAM_rst_a <= '0';
-               out_RAM_en_a <= '1';
-               out_RAM_wen_a <= "0";
-               out_RAM_din_a <= X"0000";
-               -- check if the input address has been modified in the last instruction
-               IF (
-                  (in_rc = in_wb_forwarded_address) AND
-                  (in_wb_opcode /= "0000000") AND --nop 
-                  (in_wb_opcode /= "1000000") AND --brr
-                  (in_wb_opcode /= "1000001") AND --brr.n
-                  (in_wb_opcode /= "1000010") AND --brr.z
-                  (in_wb_opcode /= "1001000") AND --br.v
-                  (in_wb_opcode /= "1000011") AND -- br 
-                  (in_wb_opcode /= "1000100") AND -- br.n
-                  (in_wb_opcode /= "1000101") AND -- br.z
-                  (in_wb_opcode /= "1001001") AND -- br.v
-                  (in_wb_opcode /= "1000111") --return
-                  ) THEN
-                  out_RAM_addy_a <= in_wb_forwarded_data(9 DOWNTO 0);
+               IF (in_dr2 = X"FFF0") THEN
+                  output_data <= dip_switches;
                ELSE
-                  out_RAM_addy_a <= in_dr2(9 DOWNTO 0);
-               END IF;
-               output_data <= '0' & in_RAM_dout_a;
-            WHEN "0010001" => -- store
-               out_RAM_rst_a <= '0';
-               out_RAM_en_a <= '1';
-               out_RAM_wen_a <= "1";
-               -- check if the destination address has been modified in the last instruction
-               IF (
-                  (in_ra = in_wb_forwarded_address) AND
-                  (in_wb_opcode /= "0000000") AND --nop 
-                  (in_wb_opcode /= "1000000") AND --brr
-                  (in_wb_opcode /= "1000001") AND --brr.n
-                  (in_wb_opcode /= "1000010") AND --brr.z
-                  (in_wb_opcode /= "1001000") AND --br.v
-                  (in_wb_opcode /= "1000011") AND -- br 
-                  (in_wb_opcode /= "1000100") AND -- br.n
-                  (in_wb_opcode /= "1000101") AND -- br.z
-                  (in_wb_opcode /= "1001001") AND -- br.v
-                  (in_wb_opcode /= "1000111") --return
-                  ) THEN
-                  out_RAM_addy_a <= in_wb_forwarded_data(9 DOWNTO 0);
-                  output_data <= in_wb_forwarded_data;
-               ELSE
-                  out_RAM_addy_a <= in_dr1(9 DOWNTO 0);
-                  output_data <= in_dr1;
-               END IF;
-               -- check if the input data has been modified in the last instruction
-               IF (
-                  (in_rc = in_wb_forwarded_address) AND
-                  (in_wb_opcode /= "0000000") AND --nop 
-                  (in_wb_opcode /= "1000000") AND --brr
-                  (in_wb_opcode /= "1000001") AND --brr.n
-                  (in_wb_opcode /= "1000010") AND --brr.z
-                  (in_wb_opcode /= "1001000") AND --br.v
-                  (in_wb_opcode /= "1000011") AND -- br 
-                  (in_wb_opcode /= "1000100") AND -- br.n
-                  (in_wb_opcode /= "1000101") AND -- br.z
-                  (in_wb_opcode /= "1001001") AND -- br.v
-                  (in_wb_opcode /= "1000111") --return
-                  ) THEN
-                  out_RAM_din_a <= in_wb_forwarded_data(15 downto 0);
-               ELSE
-                  out_RAM_din_a <= in_dr2(15 downto 0);
-               END IF;
-               --output_data <= (OTHERS => '0'); --we need to forward the store result
-            WHEN OTHERS =>
-               out_RAM_rst_a <= '1';
-               out_RAM_en_a <= '0';
-               out_RAM_wen_a <= "0";
-               out_RAM_addy_a <= (OTHERS => '0');
-               out_RAM_din_a <= (OTHERS => '0');
-               output_data <= in_ar;
-         END CASE;
-      END IF;
-   END PROCESS;
-END level_2;
+                  out_RAM_rst_a <= '0';
+                  out_RAM_en_a <= '1';
+                  out_RAM_wen_a <= "0";
+                  out_RAM_din_a <= X"0000";
+                  output_data <= '0' & in_RAM_dout_a;
+                  -- check if the input address has been modified in the last instruction
+                  IF (
+                     (in_rc = in_wb_forwarded_address) AND
+                     (in_wb_opcode /= "0000000") AND --nop 
+                     (in_wb_opcode /= "1000000") AND --brr
+                     (in_wb_opcode /= "1000001") AND --brr.n
+                     (in_wb_opcode /= "1000010") AND --brr.z
+                     (in_wb_opcode /= "1001000") AND --br.v
+                     (in_wb_opcode /= "1000011") AND -- br 
+                     (in_wb_opcode /= "1000100") AND -- br.n
+                     (in_wb_opcode /= "1000101") AND -- br.z
+                     (in_wb_opcode /= "1001001") AND -- br.v
+                     (in_wb_opcode /= "1000111") --return
+                     ) THEN
+                     out_RAM_addy_a <= in_wb_forwarded_data(9 DOWNTO 0);
+                  ELSE
+                     out_RAM_addy_a <= in_dr2(9 DOWNTO 0);
+                  END IF;
+               WHEN "0010001" => -- store
+                  IF (in_dr1 = X"FFF2") THEN
+                     IF (
+                        (in_rc = in_wb_forwarded_address) AND
+                        (in_wb_opcode /= "0000000") AND --nop 
+                        (in_wb_opcode /= "1000000") AND --brr
+                        (in_wb_opcode /= "1000001") AND --brr.n
+                        (in_wb_opcode /= "1000010") AND --brr.z
+                        (in_wb_opcode /= "1001000") AND --br.v
+                        (in_wb_opcode /= "1000011") AND -- br 
+                        (in_wb_opcode /= "1000100") AND -- br.n
+                        (in_wb_opcode /= "1000101") AND -- br.z
+                        (in_wb_opcode /= "1001001") AND -- br.v
+                        (in_wb_opcode /= "1000111") --return
+                        ) THEN
+                        display <= in_wb_forwarded_data(15 DOWNTO 0);
+                     ELSE
+                        display <= in_dr2(15 DOWNTO 0);
+                     END IF;
+                  ELSE
+                     out_RAM_rst_a <= '0';
+                     out_RAM_en_a <= '1';
+                     out_RAM_wen_a <= "1";
+                     -- check if the destination address has been modified in the last instruction
+                     IF (
+                        (in_ra = in_wb_forwarded_address) AND
+                        (in_wb_opcode /= "0000000") AND --nop 
+                        (in_wb_opcode /= "1000000") AND --brr
+                        (in_wb_opcode /= "1000001") AND --brr.n
+                        (in_wb_opcode /= "1000010") AND --brr.z
+                        (in_wb_opcode /= "1001000") AND --br.v
+                        (in_wb_opcode /= "1000011") AND -- br 
+                        (in_wb_opcode /= "1000100") AND -- br.n
+                        (in_wb_opcode /= "1000101") AND -- br.z
+                        (in_wb_opcode /= "1001001") AND -- br.v
+                        (in_wb_opcode /= "1000111") --return
+                        ) THEN
+                        out_RAM_addy_a <= in_wb_forwarded_data(9 DOWNTO 0);
+                        output_data <= in_wb_forwarded_data;
+                     ELSE
+                        out_RAM_addy_a <= in_dr1(9 DOWNTO 0);
+                        output_data <= in_dr1;
+                     END IF;
+                     -- check if the input data has been modified in the last instruction
+                     IF (
+                        (in_rc = in_wb_forwarded_address) AND
+                        (in_wb_opcode /= "0000000") AND --nop 
+                        (in_wb_opcode /= "1000000") AND --brr
+                        (in_wb_opcode /= "1000001") AND --brr.n
+                        (in_wb_opcode /= "1000010") AND --brr.z
+                        (in_wb_opcode /= "1001000") AND --br.v
+                        (in_wb_opcode /= "1000011") AND -- br 
+                        (in_wb_opcode /= "1000100") AND -- br.n
+                        (in_wb_opcode /= "1000101") AND -- br.z
+                        (in_wb_opcode /= "1001001") AND -- br.v
+                        (in_wb_opcode /= "1000111") --return
+                        ) THEN
+                        out_RAM_din_a <= in_wb_forwarded_data(15 DOWNTO 0);
+                     ELSE
+                        out_RAM_din_a <= in_dr2(15 DOWNTO 0);
+                     END IF;
+                     --output_data <= (OTHERS => '0'); --we need to forward the store result
+                  END IF;
+               WHEN OTHERS =>
+                  out_RAM_rst_a <= '1';
+                  out_RAM_en_a <= '0';
+                  out_RAM_wen_a <= "0";
+                  out_RAM_addy_a <= (OTHERS => '0');
+                  out_RAM_din_a <= (OTHERS => '0');
+                  output_data <= in_ar;
+               END CASE;
+         END IF;
+      END PROCESS;
+   END level_2;

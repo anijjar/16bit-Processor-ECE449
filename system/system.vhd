@@ -45,7 +45,7 @@ ARCHITECTURE level_0 OF System IS
    SIGNAL output : STD_LOGIC_VECTOR(15 DOWNTO 0);
    SIGNAL display : STD_LOGIC_VECTOR(N - 1 DOWNTO 0);
 BEGIN
-   input <= in_port & "00000";
+   input <= in_port(15 downto 5) & "00000";
    ack_signal <= output(0);
 
    RAM_0 : ENTITY work.RAM PORT MAP(
@@ -93,8 +93,8 @@ BEGIN
       CPU_input => input,
       CPU_output => output,
       btn1 => btnL,
-      btn2 => btnR,
-      btn3 => btnC,
+      btn2 => btnC,
+      btn3 => btnR,
       display => display,
       dip_switches => dip_switches,
       leds => leds -- have leds be outputing the store instructions
