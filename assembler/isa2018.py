@@ -96,3 +96,4 @@ opcode2string = \
 string2opcode = {}
 for i in opcode2string.items():
 	string2opcode[i[1]] = i[0]
+
