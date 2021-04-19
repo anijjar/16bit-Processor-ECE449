@@ -58,11 +58,8 @@ ARCHITECTURE behavioural OF DECODE_STAGE IS
     SIGNAL r1_adr : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
     SIGNAL r2_adr : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
     SIGNAL pc2_17 : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
-    -- SIGNAL sig_RD1 : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
-    -- SIGNAL sig_RD2 : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
 
     SIGNAL fwd_RF1d : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
-    --SIGNAL fwd_RF2d : STD_LOGIC_VECTOR(N DOWNTO 0) := (OTHERS => '0');
     SIGNAL sel_RD1 : STD_LOGIC := '0';
     SIGNAL sel_RD2 : STD_LOGIC := '0';
     SIGNAL if_brsub : STD_LOGIC := '0';
@@ -75,12 +72,8 @@ BEGIN
     out_RD2 <= rd2_out_final;--inter_RD2;
     calc_adr <= adder_v & calc_adr_16;
     inter_RD2_16 <= inter_RD2(N - 1 DOWNTO 0);
-    addend_16 <= addend(N - 1 DOWNTO 0);--addend(N - 2 DOWNTO 0)&'0'; --added 2x here by left shifting by 1. changed N-1 to N-2
-    -- sig_RD1 <= in_RF1d;
-    -- sig_RD2 <= in_RF2d;
-    --out_RD1 <= sig_RD1;
+    addend_16 <= addend(N - 1 DOWNTO 0);
     out_RD1 <= in_RF1d;
-    --out_RD2 <= fwd_RF2d;
     out_brch_adr <= brch_adr_17(N - 1 DOWNTO 0);
     out_RF1a <= r1_adr;
     out_RF2a <= r2_adr;
@@ -137,7 +130,7 @@ BEGIN
         (
         SEL => ifBr,
         A => pc_17,
-        B => fwd_RF1d, --in_RF2d, --fwd_RF2d,
+        B => fwd_RF1d, 
         C => addend
         );
 
@@ -146,13 +139,13 @@ BEGIN
         (
         SEL => ifReturn,
         A => calc_adr,
-        B => fwd_RF1d,--in_RF1d, --fwd_RF1d, this input needs to be the latest r7 value
+        B => fwd_RF1d,
         C => brch_adr_17
         );
 
     PROCESS (fwd_RF1d, in_RF1d, in_ex_forwarded_data, in_ex_forwarding_address, in_ex_opcode, in_exmem_opcode, in_exmem_forwarding_address, in_exmem_forwarded_data, in_wb_opcode, in_wb_forwarding_address, in_wb_forwarded_data, in_opcode, r1_adr, r2_adr)
     BEGIN
-    -- for the BR instructions (changed from r2 to r1)
+    -- for the BR instructions 
         IF((in_opcode = "1000011") OR (in_opcode = "1000100") OR (in_opcode = "1000101") OR (in_opcode = "1001001") OR (in_opcode = "1000110")) then
             if((in_ex_opcode /= "0010000" or in_ex_opcode /= "1000111") or 
             (in_exmem_opcode /= "0010000" or in_exmem_opcode /= "1000111") or 
@@ -194,10 +187,4 @@ BEGIN
             fwd_RF1d <= in_RF1d;
         end if;
     END PROCESS;
-    -- so the whole idea for forwarding is wrong. We were propagating a forwarded value when we should have been using it only the branching condition. we were also looking at the exmem stage only - rookie mistake. we need to look at each stage of the pipeline and see if the last 3 instructions were going to write a result into the target, r[a], register. 
-
-    -- we need the result forwarded from all three stages for br
-
-    -- for the return MUX, we need to check all three stages of the pipeline and either forward the latest r7 result, or reconstruct it from the loadimm instructions.
-
 END behavioural;

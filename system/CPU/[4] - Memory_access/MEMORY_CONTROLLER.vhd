@@ -8,10 +8,7 @@ ENTITY MEMORY_CONTROLLER IS
    );
    PORT (
       rst : IN STD_LOGIC;
-      -- clk : IN STD_LOGIC;
       in_opcode : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
-      -- in_memwb : IN STD_LOGIC;
-      -- in_memrd : IN STD_LOGIC;
       in_ra : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
       in_dr1 : IN STD_LOGIC_VECTOR(N DOWNTO 0);
       in_ar : IN STD_LOGIC_VECTOR(N DOWNTO 0);
@@ -49,9 +46,14 @@ BEGIN
       ELSE
          CASE in_opcode IS
             WHEN "0010000" => -- load
-               IF (in_dr2 = X"FFF0") THEN
+               IF (in_dr2 = X"FFF0") THEN -- read the dip switches
+                  out_RAM_rst_a <= '0';
+                  out_RAM_en_a <= '0';
+                  out_RAM_wen_a <= "0";
+                  out_RAM_addy_a <= (others => '0');
+                  out_RAM_din_a <= X"0000";
                   output_data <= dip_switches;
-               ELSE
+               ELSE -- read the RAM unit
                   out_RAM_rst_a <= '0';
                   out_RAM_en_a <= '1';
                   out_RAM_wen_a <= "0";
@@ -76,7 +78,7 @@ BEGIN
                      out_RAM_addy_a <= in_dr2(9 DOWNTO 0);
                   END IF;
                WHEN "0010001" => -- store
-                  IF (in_dr1 = X"FFF2") THEN
+                  IF (in_dr1 = X"FFF2") THEN --for writing to the LED strips
                      IF (
                         (in_rc = in_wb_forwarded_address) AND
                         (in_wb_opcode /= "0000000") AND --nop 
@@ -94,7 +96,13 @@ BEGIN
                      ELSE
                         display <= in_dr2(15 DOWNTO 0);
                      END IF;
-                  ELSE
+                     out_RAM_rst_a <= '0';
+                     out_RAM_en_a <= '0';
+                     out_RAM_wen_a <= "0";
+                     out_RAM_addy_a <= (others => '0');
+                     out_RAM_din_a <= X"0000";
+                     output_data <= (others => '0');
+                  ELSE -- to the ram unit
                      out_RAM_rst_a <= '0';
                      out_RAM_en_a <= '1';
                      out_RAM_wen_a <= "1";
@@ -115,8 +123,8 @@ BEGIN
                         out_RAM_addy_a <= in_wb_forwarded_data(9 DOWNTO 0);
                         output_data <= in_wb_forwarded_data;
                      ELSE
-                        out_RAM_addy_a <= in_dr1(9 DOWNTO 0);
-                        output_data <= in_dr1;
+                        out_RAM_addy_a <= in_dr1(9 DOWNTO 0);  
+                        output_data <= in_dr1(9 DOWNTO 0);
                      END IF;
                      -- check if the input data has been modified in the last instruction
                      IF (
@@ -136,9 +144,8 @@ BEGIN
                      ELSE
                         out_RAM_din_a <= in_dr2(15 DOWNTO 0);
                      END IF;
-                     --output_data <= (OTHERS => '0'); --we need to forward the store result
                   END IF;
-               WHEN OTHERS =>
+               WHEN OTHERS => --pass ex result to the wb stage
                   out_RAM_rst_a <= '1';
                   out_RAM_en_a <= '0';
                   out_RAM_wen_a <= "0";

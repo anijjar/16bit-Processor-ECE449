@@ -26,7 +26,7 @@ ENTITY CPU IS
       out_rom_adr : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
       out_rom_rd_en : OUT STD_LOGIC;
       out_rom_rst : OUT STD_LOGIC;
-      out_rom_rd : OUT STD_LOGIC; --dont use
+      out_rom_rd : OUT STD_LOGIC; --dont use (keep floating)
       -- user I/O
       CPU_input : IN STD_LOGIC_VECTOR(N - 1 DOWNTO 0);
       CPU_output : OUT STD_LOGIC_VECTOR(N - 1 DOWNTO 0);
@@ -73,7 +73,7 @@ ARCHITECTURE level_1 OF CPU IS
    SIGNAL idex_out_m1 : STD_LOGIC;
    SIGNAL idex_out_opcode : STD_LOGIC_VECTOR(6 DOWNTO 0);
 
-   SIGNAL ex_out_result : STD_LOGIC_VECTOR(16 DOWNTO 0); --main output
+   SIGNAL ex_out_result : STD_LOGIC_VECTOR(16 DOWNTO 0);
    SIGNAL ex_out_z_flag : STD_LOGIC;
    SIGNAL ex_out_n_flag : STD_LOGIC;
    SIGNAL es_flags : STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -201,7 +201,7 @@ BEGIN
 
    EXECUTE : ENTITY work.EXECUTE_STAGE PORT MAP (
       rst => rst,
-      in_CPU_input => CPU_input, --cpu input
+      in_CPU_input => CPU_input,
       in_RD1 => idex_out_dr1,
       in_RD2 => idex_out_dr2,
       in_alumode => idex_out_alumode,
@@ -214,7 +214,7 @@ BEGIN
       in_wb_forwarding_address => wb_out_ra,
       in_exmem_forwarded_data => exmem_out_ar,
       in_wb_forwarded_data => wb_out_ar,
-      out_result => ex_out_result, --main output
+      out_result => ex_out_result, 
       out_z_flag => ex_out_z_flag,
       out_n_flag => ex_out_n_flag,
       out_v_flag => ex_out_v_flag
@@ -245,18 +245,18 @@ BEGIN
       in_dr1 => exmem_out_dr1,
       in_rc => exmem_out_rc,
       in_dr2 => exmem_out_dr2,
-      in_ar => exmem_out_ar, -- data input
+      in_ar => exmem_out_ar,
       in_wb_opcode => memwb_out_opcode,
       in_wb_forwarded_address => wb_out_ra,
-      in_wb_forwarded_data => wb_out_ar, --this is for loadimm
-      output_data => mem_output_data, --main output (ar or ram)
+      in_wb_forwarded_data => wb_out_ar, 
+      output_data => mem_output_data, 
       out_RAM_rst_a => out_ram_rsta,
       out_RAM_en_a => out_ram_ena,
       out_RAM_wen_a => out_ram_wea,
       out_RAM_addy_a => out_ram_addra,
       out_RAM_din_a => out_ram_dina,
       in_RAM_dout_a => in_ram_douta,
-      display => leds, -- map the stores to leds
+      display => leds, -- this goes to the led strip
       dip_switches => dip_switches
       );
 
@@ -280,7 +280,7 @@ BEGIN
       rst => rst,
       in_m1 => memwb_out_m1,
       in_opcode => memwb_out_opcode,
-      in_ar => memwb_output_data, --for everything else
+      in_ar => memwb_output_data,
       in_ra => memwb_out_ra,
       in_rc => memwb_out_rc,
       out_cpu => CPU_output,
@@ -292,6 +292,7 @@ BEGIN
    FSM : PROCESS (in_rst_ld, in_rst_ex, rst, btn1, btn2)
       VARIABLE prog_en : INTEGER := 0;
    BEGIN
+      -- keep the cpu in reset state as long as the program is not enabled
       IF (in_rst_ld = '1' OR in_rst_ex = '1') THEN
          rst <= '1';
          prog_en := 1;
@@ -300,14 +301,16 @@ BEGIN
       ELSE
          rst <= '0';
       END IF;
-      IF (btn1 = '1' AND btn2 = '0' AND btn3 = '0') THEN
+      -- if a btn is pressed, display data from memory units on seven segment,
+      -- otherwise, display program counter
+      IF (btn1 = '1' AND btn2 = '0' AND btn3 = '0') THEN -- left btn
+         display <= in_rom_data; --rom instruct
+      elsif (btn1 = '0' AND btn2 = '1' AND btn3 = '0') THEN -- middle btn
+         display <= in_ram_douta; --ram port a data
+      elsif (btn1 = '0' AND btn2 = '0' AND btn3 = '1') THEN -- right btn
+         display <= in_ram_doutb; -- ram port b data
+      else
          display <= fs_pc; --pc
-      END IF;
-      IF (btn1 = '0' AND btn2 = '1' AND btn3 = '0') THEN
-         display <= ex_out_result(15 DOWNTO 0); --alu
-      END IF;
-      IF (btn1 = '0' AND btn2 = '0' AND btn3 = '1') THEN
-         display <= out_rom_adr; -- instruction
       END IF;
    END PROCESS FSM;
 END level_1;

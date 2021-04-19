@@ -22,7 +22,12 @@ ENTITY System IS
       in_port : IN STD_LOGIC_VECTOR(15 DOWNTO 5)
    );
 END System;
-
+--Main file of the Chip
+--Contains the RAM, ROM, CPU, and display_controller
+--Ack_signal is tied to pin-0 of the CPU outputs
+--only top 10 bits of the input are used
+--display port of the CPU is mapped to the display controller
+--display controller is reset on reset and ex signal. (BTN down)
 ARCHITECTURE level_0 OF System IS
    -- CPU unit     
    SIGNAL CPU_ram_dina : STD_LOGIC_VECTOR(N - 1 DOWNTO 0);
@@ -97,7 +102,7 @@ BEGIN
       btn3 => btnR,
       display => display,
       dip_switches => dip_switches,
-      leds => leds -- have leds be outputing the store instructions
+      leds => leds 
       );
 
    display_module : ENTITY work.display_controller PORT MAP (

@@ -100,7 +100,7 @@ BEGIN
       C => pc_input
       );
 
-   out_pc <= sig_pc_output + x"0002"; -- CHANGED THESE TWO LINES TO INCREMENT AN EXTRA POSITION
-   out_pc2 <= pc2 + x"0002";
+   out_pc <= sig_pc_output;
+   out_pc2 <= pc2;
 
 END level_2;
