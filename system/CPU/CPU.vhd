@@ -84,7 +84,6 @@ ARCHITECTURE level_1 OF CPU IS
    SIGNAL exmem_out_dr1 : STD_LOGIC_VECTOR(16 DOWNTO 0);
    SIGNAL exmem_out_m1 : STD_LOGIC;
    SIGNAL exmem_out_opcode : STD_LOGIC_VECTOR(6 DOWNTO 0);
-   SIGNAL exmem_out_rb : STD_LOGIC_VECTOR(2 DOWNTO 0);
    SIGNAL exmem_out_dr2 : STD_LOGIC_VECTOR(16 DOWNTO 0);
    SIGNAL exmem_out_rc : STD_LOGIC_VECTOR(2 DOWNTO 0);
    SIGNAL mem_output_data : STD_LOGIC_VECTOR(16 DOWNTO 0);
@@ -93,7 +92,6 @@ ARCHITECTURE level_1 OF CPU IS
    SIGNAL memwb_output_data : STD_LOGIC_VECTOR(16 DOWNTO 0);
    SIGNAL memwb_out_ra : STD_LOGIC_VECTOR(2 DOWNTO 0);
    SIGNAL memwb_out_rc : STD_LOGIC_VECTOR(2 DOWNTO 0);
-   SIGNAL memwb_out_ar : STD_LOGIC_VECTOR(16 DOWNTO 0);
    SIGNAL memwb_out_m1 : STD_LOGIC;
 
    SIGNAL wb_out_ra_wen : STD_LOGIC;
